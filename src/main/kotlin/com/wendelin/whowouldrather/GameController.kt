@@ -8,25 +8,44 @@ import kotlin.streams.asSequence
 @RestController
 class GameController {
 
+    companion object {
+        val QUESTIONS: List<String> = listOf(
+                "sell their car because of its color",
+                "fail their driving license test multiple times",
+                "live in a zoo",
+                "become a president"
+        )
+        const val MIN_QUESTIONS: Int = 2
+    }
+
     val games: MutableMap<String, Game> = ConcurrentHashMap()
 
+    data class CreateGameRequest(val playerName: String, val questionAmount: Int)
+    data class CreateGameResponse(val gameId: String, val token: String)
+
     @PostMapping("/games")
-    fun createGame(@RequestBody name: String): String {
+    fun createGame(@RequestBody body: CreateGameRequest): CreateGameResponse {
+        if (body.questionAmount < GameController.MIN_QUESTIONS || body.questionAmount > GameController.QUESTIONS.size) {
+            throw RuntimeException("Invalid question amount")
+        }
+
         var id: String = IdGenerator.generateGameId()
 
         while (this.games.containsKey(id)) {
             id = IdGenerator.generateGameId()
         }
 
+        val token: String = IdGenerator.generateToken()
         this.games[id] = Game(
                 id,
-                mutableListOf(Player(name, IdGenerator.generateToken())),
+                mutableListOf(Player(body.playerName, token)),
                 State.WAITING,
+                GameController.QUESTIONS.shuffled().subList(0, body.questionAmount - 1),
                 ConcurrentHashMap(),
                 null
         )
 
-        return id
+        return CreateGameResponse(id, token)
     }
 
     @PutMapping("/games/{gameId}")
@@ -55,25 +74,34 @@ class GameController {
             @PathVariable("gameId") gameId: String,
             @RequestHeader("token") token: String,
             @RequestBody target: String
-    ): Game {
+    ) {
         val game: Game = this.games[gameId] ?: throw RuntimeException("Game $gameId not found")
         val player: Player = game.players.find { gamePlayer -> gamePlayer.token == token }
-                ?: throw RuntimeException("Failed to resolve sender")
+                ?: throw RuntimeException("Failed to resolve token")
 
-        if (game.state != State.PLAYING || game.currentQuestionId == null) {
+        if (game.state != State.PLAYING || game.currentQuestion == null) {
             throw RuntimeException("Voting is not active")
         }
 
         val targetPlayer: Player = game.players.find { gamePlayer -> gamePlayer.name == target }
                 ?: throw RuntimeException("Failed to resolve target")
-        val votes: MutableSet<Vote> = game.votes[game.currentQuestionId]
+        val votes: MutableSet<Vote> = game.votes[game.currentQuestion]
                 ?: mutableSetOf()
 
         if (votes.map { vote -> vote.from.token }.any { votedToken -> votedToken == token }) {
             throw RuntimeException("Already voted")
         }
 
-        votes.add(Vote(player, targetPlayer, game.currentQuestionId, System.currentTimeMillis()))
+        votes.add(Vote(player, targetPlayer, game.currentQuestion, System.currentTimeMillis()))
+    }
+
+    @GetMapping("/games/{gameId}")
+    fun getGame(@PathVariable("gameId") gameId: String, @RequestHeader("token") token: String): Game {
+        val game: Game = this.games[gameId] ?: throw RuntimeException("Game $gameId not found")
+        if (game.players.any { gamePlayer -> gamePlayer.token == token }) {
+            throw RuntimeException("Failed to resolve token")
+        }
+
         return game
     }
 
@@ -111,7 +139,7 @@ class IdGenerator {
 
 data class Player(val name: String, val token: String)
 
-data class Vote(val from: Player, val target: Player, val questionId: String, val time: Long)
+data class Vote(val from: Player, val target: Player, val question: String, val time: Long)
 
 enum class State {
     WAITING,
@@ -122,6 +150,7 @@ data class Game(
         val id: String,
         val players: MutableList<Player>,
         val state: State,
-        val votes: Map<String, MutableSet<Vote>>,
-        val currentQuestionId: String?
+        val questions: List<String>,
+        val votes: Map<String, MutableSet<Vote>>, // questionId <-> votes
+        val currentQuestion: String?
 )
