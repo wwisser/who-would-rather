@@ -115,7 +115,7 @@ class GameController {
         val votes: MutableSet<Vote> = game.votes[game.currentQuestion!!]
                 ?: mutableSetOf()
 
-        if (votes.map { vote -> vote.from.token }.any { it == token }) {
+        if (votes.any { it.from.token == token }) {
             throw RuntimeException("Already voted")
         }
 
