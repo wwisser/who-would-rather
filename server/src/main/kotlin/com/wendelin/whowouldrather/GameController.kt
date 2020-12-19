@@ -2,6 +2,7 @@ package com.wendelin.whowouldrather
 
 import com.wendelin.whowouldrather.IdGenerator.Companion.generateToken
 import org.springframework.web.bind.annotation.*
+import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.streams.asSequence
 
@@ -59,7 +60,7 @@ class GameController {
         }
 
 
-        val nameTaken: Boolean = game.players.map { player -> player.name }.any { newName -> newName == body.name }
+        val nameTaken: Boolean = game.players.any { it.name == body.name }
 
         if (nameTaken) {
             throw RuntimeException("Name $body.name already taken")
@@ -78,19 +79,19 @@ class GameController {
             @RequestBody target: String
     ) {
         val game: Game = this.games[gameId] ?: throw RuntimeException("Game $gameId not found")
-        val player: Player = game.players.find { gamePlayer -> gamePlayer.token == token }
+        val player: Player = game.players.find { it.token == token }
                 ?: throw RuntimeException("Failed to resolve token")
 
         if (game.state != State.PLAYING || game.currentQuestion == null) {
             throw RuntimeException("Voting is not active")
         }
 
-        val targetPlayer: Player = game.players.find { gamePlayer -> gamePlayer.name == target }
+        val targetPlayer: Player = game.players.find { it.name == target }
                 ?: throw RuntimeException("Failed to resolve target")
         val votes: MutableSet<Vote> = game.votes[game.currentQuestion!!]
                 ?: mutableSetOf()
 
-        if (votes.map { vote -> vote.from.token }.any { votedToken -> votedToken == token }) {
+        if (votes.map { vote -> vote.from.token }.any { it == token }) {
             throw RuntimeException("Already voted")
         }
 
@@ -142,7 +143,7 @@ class IdGenerator {
         }
 
         private fun generateId(length: Long): String {
-            return java.util.Random().ints(length, 0, SRC.length)
+            return Random().ints(length, 0, SRC.length)
                     .asSequence()
                     .map(IdGenerator.SRC::get)
                     .joinToString("")
