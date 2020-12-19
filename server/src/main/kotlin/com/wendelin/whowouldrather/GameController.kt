@@ -104,7 +104,7 @@ class GameController {
     @GetMapping("/games/{gameId}")
     fun getGame(@PathVariable("gameId") gameId: String, @RequestHeader("token") token: String): Game {
         val game: Game = this.games[gameId] ?: throw RuntimeException("Game $gameId not found")
-        if (game.players.any { gamePlayer -> gamePlayer.token == token }) {
+        if (game.players.none { gamePlayer -> gamePlayer.token == token }) {
             throw RuntimeException("Failed to resolve token")
         }
 
