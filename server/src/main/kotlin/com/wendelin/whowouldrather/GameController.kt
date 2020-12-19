@@ -94,11 +94,13 @@ class GameController {
         }
     }
 
+    data class VoteRequest(val target: String)
+
     @PutMapping("/games/{gameId}/vote")
     fun vote(
             @PathVariable("gameId") gameId: String,
             @RequestHeader("token") token: String,
-            @RequestBody target: String
+            @RequestBody request: VoteRequest
     ) {
         val game: Game = this.games[gameId] ?: throw RuntimeException("Game $gameId not found")
         val player: Player = game.players.find { it.token == token }
@@ -108,7 +110,7 @@ class GameController {
             throw RuntimeException("Voting is not active")
         }
 
-        val targetPlayer: Player = game.players.find { it.name == target }
+        val targetPlayer: Player = game.players.find { it.name == request.target }
                 ?: throw RuntimeException("Failed to resolve target")
         val votes: MutableSet<Vote> = game.votes[game.currentQuestion!!]
                 ?: mutableSetOf()
