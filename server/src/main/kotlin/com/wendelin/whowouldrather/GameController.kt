@@ -89,6 +89,8 @@ class GameController {
         if (game.owner == player && game.players.size >= MIN_PLAYERS) {
             game.state = State.PLAYING
             game.currentQuestion = game.questions[0]
+        } else {
+            throw RuntimeException("Failed to start game")
         }
     }
 
@@ -117,13 +119,17 @@ class GameController {
 
         votes.add(Vote(player, targetPlayer, System.currentTimeMillis()))
 
+        if (game.votes[game.currentQuestion!!] == null) {
+            game.votes[game.currentQuestion!!] = votes
+        }
+
         if (votes.size == game.players.size) {
             if (game.votes.size == game.questions.size) {
                 game.state = State.ENDING
                 return
             }
 
-            game.currentQuestion = game.questions[game.questions.indexOf(game.currentQuestion + 1)]
+            game.currentQuestion = game.questions[game.questions.indexOf(game.currentQuestion!!) + 1]
         }
     }
 
@@ -169,6 +175,6 @@ data class Game(
         var owner: Player,
         var state: State,
         var questions: List<String>,
-        var votes: Map<String, MutableSet<Vote>>, // questionIdx <-> votes
+        var votes: MutableMap<String, MutableSet<Vote>>, // question <-> votes
         var currentQuestion: String?
 )
