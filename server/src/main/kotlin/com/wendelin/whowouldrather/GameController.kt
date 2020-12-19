@@ -10,6 +10,8 @@ import kotlin.streams.asSequence
 class GameController {
 
     companion object {
+        const val MIN_PLAYERS: Int = 2
+
         val QUESTIONS: List<String> = listOf(
                 "sell their car because of its color",
                 "fail their driving license test multiple times",
@@ -37,9 +39,11 @@ class GameController {
         }
 
         val token: String = IdGenerator.generateToken()
+        val player = Player(body.playerName, token)
         this.games[id] = Game(
                 id,
-                mutableListOf(Player(body.playerName, token)),
+                mutableListOf(player),
+                player,
                 State.WAITING,
                 GameController.QUESTIONS.shuffled().subList(0, body.questionAmount - 1),
                 ConcurrentHashMap(),
@@ -72,6 +76,22 @@ class GameController {
         return player
     }
 
+    @PutMapping("/games/{gameId}/start")
+    fun startGame(@PathVariable("gameId") gameId: String, @RequestHeader("token") token: String) {
+        val game: Game = this.games[gameId] ?: throw RuntimeException("Game $gameId not found")
+        val player: Player = game.players.find { it.token == token }
+                ?: throw RuntimeException("Failed to resolve token")
+
+        if (game.state != State.WAITING) {
+            throw RuntimeException("Game already started")
+        }
+
+        if (game.owner == player && game.players.size >= MIN_PLAYERS) {
+            game.state = State.PLAYING
+            game.currentQuestion = game.questions[0]
+        }
+    }
+
     @PutMapping("/games/{gameId}/vote")
     fun vote(
             @PathVariable("gameId") gameId: String,
@@ -95,10 +115,15 @@ class GameController {
             throw RuntimeException("Already voted")
         }
 
-        votes.add(Vote(player, targetPlayer, game.currentQuestion!!, System.currentTimeMillis()))
+        votes.add(Vote(player, targetPlayer, System.currentTimeMillis()))
 
-        if (game.votes.size == game.questions.size && votes.size == game.players.size) {
-            game.state = State.ENDING
+        if (votes.size == game.players.size) {
+            if (game.votes.size == game.questions.size) {
+                game.state = State.ENDING
+                return
+            }
+
+            game.currentQuestion = game.questions[game.questions.indexOf(game.currentQuestion + 1)]
         }
     }
 
@@ -122,39 +147,15 @@ class GameController {
 
 
     @GetMapping("/games")
-    fun getAll(): Collection<Game> {
+    fun getAllGames(): Collection<Game> {
         return this.games.values
     }
 
 }
 
-class IdGenerator {
-    companion object {
-        private const val LENGTH_GAME: Long = 10
-        private const val LENGTH_TOKEN: Long = 16
-        private const val SRC: String = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-
-        fun generateGameId(): String {
-            return generateId(LENGTH_GAME)
-        }
-
-        fun generateToken(): String {
-            return generateId(LENGTH_TOKEN)
-        }
-
-        private fun generateId(length: Long): String {
-            return Random().ints(length, 0, SRC.length)
-                    .asSequence()
-                    .map(IdGenerator.SRC::get)
-                    .joinToString("")
-
-        }
-    }
-}
-
 data class Player(val name: String, val token: String)
 
-data class Vote(val from: Player, val target: Player, val question: String, val time: Long)
+data class Vote(val from: Player, val target: Player, val time: Long)
 
 enum class State {
     WAITING,
@@ -165,8 +166,9 @@ enum class State {
 data class Game(
         val id: String,
         val players: MutableList<Player>,
+        var owner: Player,
         var state: State,
         var questions: List<String>,
-        var votes: Map<String, MutableSet<Vote>>, // questionId <-> votes
+        var votes: Map<String, MutableSet<Vote>>, // questionIdx <-> votes
         var currentQuestion: String?
 )
