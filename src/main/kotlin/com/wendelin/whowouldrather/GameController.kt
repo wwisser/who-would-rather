@@ -20,11 +20,11 @@ class GameController {
 
     val games: MutableMap<String, Game> = ConcurrentHashMap()
 
-    data class CreateGameRequest(val playerName: String, val questionAmount: Int)
-    data class CreateGameResponse(val gameId: String, val token: String)
+    data class CreateRequest(val playerName: String, val questionAmount: Int)
+    data class CreateResponse(val gameId: String, val token: String)
 
     @PostMapping("/games")
-    fun createGame(@RequestBody body: CreateGameRequest): CreateGameResponse {
+    fun createGame(@RequestBody body: CreateRequest): CreateResponse {
         if (body.questionAmount < GameController.MIN_QUESTIONS || body.questionAmount > GameController.QUESTIONS.size) {
             throw RuntimeException("Invalid question amount")
         }
@@ -45,11 +45,13 @@ class GameController {
                 null
         )
 
-        return CreateGameResponse(id, token)
+        return CreateResponse(id, token)
     }
 
+    data class JoinRequest(val name: String)
+
     @PutMapping("/games/{gameId}")
-    fun joinGame(@PathVariable("gameId") gameId: String, @RequestBody name: String): Player {
+    fun joinGame(@PathVariable("gameId") gameId: String, @RequestBody body: JoinRequest): Player {
         val game: Game = this.games[gameId] ?: throw RuntimeException("Game $gameId not found")
 
         if (game.state != State.WAITING) {
@@ -57,13 +59,13 @@ class GameController {
         }
 
 
-        val nameTaken: Boolean = game.players.map { player -> player.name }.any { newName -> newName == name }
+        val nameTaken: Boolean = game.players.map { player -> player.name }.any { newName -> newName == body.name }
 
         if (nameTaken) {
-            throw RuntimeException("Name $name already taken")
+            throw RuntimeException("Name $body.name already taken")
         }
 
-        val player = Player(name, generateToken())
+        val player = Player(body.name, generateToken())
         game.players.add(player)
 
         return player
@@ -93,6 +95,10 @@ class GameController {
         }
 
         votes.add(Vote(player, targetPlayer, game.currentQuestion, System.currentTimeMillis()))
+
+        if (game.votes.size == game.questions.size && votes.size == game.players.size) {
+            game.state = State.ENDING
+        }
     }
 
     @GetMapping("/games/{gameId}")
@@ -143,13 +149,14 @@ data class Vote(val from: Player, val target: Player, val question: String, val 
 
 enum class State {
     WAITING,
-    PLAYING
+    PLAYING,
+    ENDING
 }
 
 data class Game(
         val id: String,
         val players: MutableList<Player>,
-        val state: State,
+        var state: State,
         val questions: List<String>,
         val votes: Map<String, MutableSet<Vote>>, // questionId <-> votes
         val currentQuestion: String?
