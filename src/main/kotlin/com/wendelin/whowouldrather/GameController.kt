@@ -87,14 +87,14 @@ class GameController {
 
         val targetPlayer: Player = game.players.find { gamePlayer -> gamePlayer.name == target }
                 ?: throw RuntimeException("Failed to resolve target")
-        val votes: MutableSet<Vote> = game.votes[game.currentQuestion]
+        val votes: MutableSet<Vote> = game.votes[game.currentQuestion!!]
                 ?: mutableSetOf()
 
         if (votes.map { vote -> vote.from.token }.any { votedToken -> votedToken == token }) {
             throw RuntimeException("Already voted")
         }
 
-        votes.add(Vote(player, targetPlayer, game.currentQuestion, System.currentTimeMillis()))
+        votes.add(Vote(player, targetPlayer, game.currentQuestion!!, System.currentTimeMillis()))
 
         if (game.votes.size == game.questions.size && votes.size == game.players.size) {
             game.state = State.ENDING
@@ -108,7 +108,15 @@ class GameController {
             throw RuntimeException("Failed to resolve token")
         }
 
-        return game
+        val responseGame: Game = game.copy()
+        responseGame.questions = mutableListOf()
+        if (game.state != State.ENDING) {
+            responseGame.votes = game.votes.entries
+                    .filterNot { entry -> entry.key == game.currentQuestion }
+                    .associateByTo(mutableMapOf(), { it.key }, { it.value })
+        }
+
+        return responseGame
     }
 
 
@@ -157,7 +165,7 @@ data class Game(
         val id: String,
         val players: MutableList<Player>,
         var state: State,
-        val questions: List<String>,
-        val votes: Map<String, MutableSet<Vote>>, // questionId <-> votes
-        val currentQuestion: String?
+        var questions: List<String>,
+        var votes: Map<String, MutableSet<Vote>>, // questionId <-> votes
+        var currentQuestion: String?
 )
