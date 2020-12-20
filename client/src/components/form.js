@@ -7,6 +7,7 @@ import * as PropTypes from "prop-types";
 import Box from "@material-ui/core/Box";
 import Typography from "@material-ui/core/Typography";
 import TextField from "@material-ui/core/TextField";
+import Button from "@material-ui/core/Button";
 
 function TabPanel(props) {
     const {children, value, index, ...other} = props;
@@ -41,7 +42,7 @@ function a11yProps(index) {
     };
 }
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
     paper: {
         display: 'flex',
         justifyContent: 'center',
@@ -49,9 +50,12 @@ const useStyles = makeStyles(() => ({
         flexWrap: 'wrap',
         padding: '10px'
     },
-    textField: {
-        paddingRight: '15px'
-    }
+    root: {
+        '& > *': {
+            margin: theme.spacing(1),
+            width: '25ch',
+        },
+    },
 }));
 
 export default function Form() {
@@ -72,19 +76,24 @@ export default function Form() {
                     textColor="primary"
                     aria-label="disabled tabs example"
                 >
-                    <Tab label="Create Game" {...a11yProps(0)} />
-                    <Tab label="Join Game" {...a11yProps(1)} />
+                    <Tab label="Join Game" {...a11yProps(0)} />
+                    <Tab label="Create Game" {...a11yProps(1)} />
                 </Tabs>
 
             </Paper>
             <TabPanel value={value} index={0}>
-                <form>
+                <form className={classes.root}>
                     <TextField id="outlined-basic" label="Name" variant="outlined"/>
+                    <TextField id="outlined-basic" label="Game ID" variant="outlined"/>
+                    <Button variant="contained" color="primary" href="#contained-buttons">Join</Button>
                 </form>
             </TabPanel>
             <TabPanel value={value} index={1}>
-                <TextField id="outlined-basic" label="Name" variant="outlined"/>
-                <TextField id="outlined-basic" label="Questions" type="number" variant="outlined"/>
+                <form className={classes.root}>
+                    <TextField id="outlined-basic" label="Name" variant="outlined"/>
+                    <TextField id="outlined-basic" label="Questions" type="number" variant="outlined"/>
+                    <Button variant="contained" color="primary" href="#contained-buttons">Create</Button>
+                </form>
             </TabPanel>
         </div>
     );
