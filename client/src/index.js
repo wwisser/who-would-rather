@@ -5,20 +5,9 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
-import Link from '@material-ui/core/Link';
-
-function Copyright() {
-    return (
-        <Typography variant="body2" color="textSecondary">
-            {'Copyright © '}
-            <Link color="inherit" href="https://github.com/wwisser">
-                Wendelin Wisser
-            </Link>{' '}
-            {new Date().getFullYear()}
-            {'.'}
-        </Typography>
-    );
-}
+import Copyright from "./components/copyright";
+import Description from "./components/description";
+import Form from "./components/form";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -46,12 +35,8 @@ function App() {
         <div className={classes.root}>
             <CssBaseline />
             <Container component="main" className={classes.main} maxWidth="sm">
-                <Typography variant="h2" component="h1" gutterBottom>
-                    Who Would Rather?
-                </Typography>
-                <Typography variant="h5" component="h2" gutterBottom>
-                    Join or create a new game below.
-                </Typography>
+                <Description/>
+                <Form/>
             </Container>
             <footer className={classes.footer}>
                 <Container maxWidth="sm">
