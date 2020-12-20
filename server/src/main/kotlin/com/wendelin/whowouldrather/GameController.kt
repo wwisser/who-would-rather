@@ -2,9 +2,7 @@ package com.wendelin.whowouldrather
 
 import com.wendelin.whowouldrather.IdGenerator.Companion.generateToken
 import org.springframework.web.bind.annotation.*
-import java.util.*
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.streams.asSequence
 
 @RestController
 @CrossOrigin("*")
@@ -24,7 +22,7 @@ class GameController {
 
     val games: MutableMap<String, Game> = ConcurrentHashMap()
 
-    data class CreateRequest(val playerName: String, val questionAmount: Int)
+    data class CreateRequest(val name: String, val questionAmount: Int)
     data class CreateResponse(val gameId: String, val token: String)
 
     @PostMapping("/games")
@@ -40,7 +38,7 @@ class GameController {
         }
 
         val token: String = IdGenerator.generateToken()
-        val player = Player(body.playerName, token)
+        val player = Player(body.name, token)
         this.games[id] = Game(
                 id,
                 mutableListOf(player),
