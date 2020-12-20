@@ -60,17 +60,23 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Form() {
     const classes = useStyles();
-    const [value, setValue] = React.useState(0);
+    const [formState, setFormState] = React.useState({value: 0});
 
     const handleChange = (event, newValue) => {
-        setValue(newValue);
+        setFormState({...formState, value: newValue})
+    };
+
+    const handleClick = (event) => {
+        setFormState({...formState, [event.target.name]: event.target.value});
+
+        console.log(formState);
     };
 
     return (
         <div>
             <Paper class={classes.paper}>
                 <Tabs
-                    value={value}
+                    value={formState.value}
                     onChange={handleChange}
                     indicatorColor="primary"
                     textColor="primary"
@@ -81,18 +87,18 @@ export default function Form() {
                 </Tabs>
 
             </Paper>
-            <TabPanel value={value} index={0}>
+            <TabPanel value={formState.value} index={0}>
                 <form className={classes.root}>
-                    <TextField id="outlined-basic" label="Name" variant="outlined"/>
-                    <TextField id="outlined-basic" label="Game ID" variant="outlined"/>
-                    <Button variant="contained" color="primary" href="#contained-buttons">Join</Button>
+                    <TextField name="name" label="Name" variant="outlined" onChange={handleClick}/>
+                    <TextField name="gameId" label="Game ID" variant="outlined" onChange={handleClick}/>
+                    <Button variant="contained" color="primary" >Join</Button>
                 </form>
             </TabPanel>
-            <TabPanel value={value} index={1}>
+            <TabPanel value={formState.value} index={1}>
                 <form className={classes.root}>
-                    <TextField id="outlined-basic" label="Name" variant="outlined"/>
-                    <TextField id="outlined-basic" label="Questions" type="number" variant="outlined"/>
-                    <Button variant="contained" color="primary" href="#contained-buttons">Create</Button>
+                    <TextField name="name" label="Name" variant="outlined" onChange={handleClick}/>
+                    <TextField name="questionAmount" label="Questions" type="number" variant="outlined" onChange={handleClick}/>
+                    <Button variant="contained" color="primary">Create</Button>
                 </form>
             </TabPanel>
         </div>
