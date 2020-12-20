@@ -7,6 +7,7 @@ import java.util.concurrent.ConcurrentHashMap
 import kotlin.streams.asSequence
 
 @RestController
+@CrossOrigin("*")
 class GameController {
 
     companion object {
