@@ -60,47 +60,109 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Form() {
     const classes = useStyles();
-    const [formState, setFormState] = React.useState({value: 0});
+    const [formState, setFormState] = React.useState({
+        value: 0,
+        name: null,
+        questionAmount: null,
+        gameId: null,
+        showInput: true,
+        token: null,
+        game: null
+    });
 
     const handleChange = (event, newValue) => {
         setFormState({...formState, value: newValue})
     };
 
     const handleClick = (event) => {
-        setFormState({...formState, [event.target.name]: event.target.value});
+        setFormState({
+            ...formState,
+            [event.target.name]: event.target.value
+        });
+    };
 
-        console.log(formState);
+    const submitCreate = () => {
+
+
+        fetch('http://localhost:8080/games', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formState)
+        })
+            .then(res => {
+                res.text().then(text => {
+                    const obj = JSON.parse(text);
+
+                    formState.token = obj.token;
+                    formState.gameId = obj.gameId;
+                    updateGameState()
+                })
+            })
+            .catch(console.error)
+    };
+
+    const updateGameState = () => {
+        fetch(`http://localhost:8080/games/${formState.gameId}`, {
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'token': formState.token
+            },
+        })
+            .then(res => {
+                res.text().then(res => {
+                    formState.game = JSON.parse(res);
+                    setFormState({
+                        ...formState,
+                        showInput: false
+                    });
+                })
+            })
+            .catch(console.error)
+    };
+
+    const submitJoin = () => {
     };
 
     return (
-        <div>
-            <Paper class={classes.paper}>
-                <Tabs
-                    value={formState.value}
-                    onChange={handleChange}
-                    indicatorColor="primary"
-                    textColor="primary"
-                    aria-label="disabled tabs example"
-                >
-                    <Tab label="Join Game" {...a11yProps(0)} />
-                    <Tab label="Create Game" {...a11yProps(1)} />
-                </Tabs>
+        formState.showInput ?
+            <div>
+                <Paper class={classes.paper}>
+                    <Tabs
+                        value={formState.value}
+                        onChange={handleChange}
+                        indicatorColor="primary"
+                        textColor="primary"
+                        aria-label="disabled tabs example"
+                    >
+                        <Tab label="Join Game" {...a11yProps(0)} />
+                        <Tab label="Create Game" {...a11yProps(1)} />
+                    </Tabs>
 
-            </Paper>
-            <TabPanel value={formState.value} index={0}>
-                <form className={classes.root}>
-                    <TextField name="name" label="Name" variant="outlined" onChange={handleClick}/>
-                    <TextField name="gameId" label="Game ID" variant="outlined" onChange={handleClick}/>
-                    <Button variant="contained" color="primary" >Join</Button>
-                </form>
-            </TabPanel>
-            <TabPanel value={formState.value} index={1}>
-                <form className={classes.root}>
-                    <TextField name="name" label="Name" variant="outlined" onChange={handleClick}/>
-                    <TextField name="questionAmount" label="Questions" type="number" variant="outlined" onChange={handleClick}/>
-                    <Button variant="contained" color="primary">Create</Button>
-                </form>
-            </TabPanel>
-        </div>
+                </Paper>
+                <TabPanel value={formState.value} index={0}>
+                    <form className={classes.root}>
+                        <TextField name="name" label="Name" variant="outlined" onChange={handleClick}/>
+                        <TextField name="gameId" label="Game ID" variant="outlined" onChange={handleClick}/>
+                        <Button disabled={!formState.name || !formState.gameId} variant="contained" color="primary"
+                                onClick={submitJoin}>Join</Button>
+                    </form>
+                </TabPanel>
+                <TabPanel value={formState.value} index={1}>
+                    <form className={classes.root}>
+                        <TextField name="name" label="Name" variant="outlined" onChange={handleClick}/>
+                        <TextField name="questionAmount" label="Questions" type="number" variant="outlined"
+                                   defaultValue={2}
+                                   onChange={handleClick}/>
+                        <Button disabled={!formState.name || !formState.questionAmount} variant="contained"
+                                color="primary"
+                                onClick={submitCreate}>Create</Button>
+                    </form>
+                </TabPanel>
+            </div>
+            : formState.game ? <span>{JSON.stringify(formState.game)}</span> : <span>Nothing</span>
     );
 }
