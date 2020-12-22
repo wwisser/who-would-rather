@@ -10,7 +10,7 @@ class GameController {
 
     companion object {
         const val MIN_PLAYERS: Int = 2
-
+        const val MAX_PLAYERS: Int = 5
         val QUESTIONS: List<String> = listOf(
                 "sell their car because of its color",
                 "fail their driving license test multiple times",
@@ -60,6 +60,10 @@ class GameController {
 
         if (game.state != State.WAITING) {
             throw RuntimeException("Game already running")
+        }
+
+        if (game.players.size >= GameController.MAX_PLAYERS) {
+            throw RuntimeException("Lobby already full")
         }
 
 
