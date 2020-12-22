@@ -8,6 +8,13 @@ import Box from "@material-ui/core/Box";
 import Typography from "@material-ui/core/Typography";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
+import Card from "@material-ui/core/Card";
+import CardContent from "@material-ui/core/CardContent";
+import CardActions from "@material-ui/core/CardActions";
+import CircularProgress from "@material-ui/core/CircularProgress";
+import Avatar from "@material-ui/core/Avatar";
+import deepPurple from "@material-ui/core/colors/deepPurple";
+import deepOrange from "@material-ui/core/colors/deepOrange";
 
 function TabPanel(props) {
     const {children, value, index, ...other} = props;
@@ -42,32 +49,64 @@ function a11yProps(index) {
     };
 }
 
-const useStyles = makeStyles((theme) => ({
-    paper: {
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        flexWrap: 'wrap',
-        padding: '10px'
-    },
-    root: {
-        '& > *': {
-            margin: theme.spacing(1),
-            width: '25ch',
+const useStyles = makeStyles((theme) => {
+    const styles = {
+        paper: {
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            padding: '10px'
         },
-    },
-}));
+        root: {
+            '& > *': {
+                margin: theme.spacing(1),
+                width: '25ch',
+            },
+        },
+        waiting: {
+            minWidth: 275,
+        },
+        bullet: {
+            display: 'inline-block',
+            margin: '0 2px',
+            transform: 'scale(0.8)',
+        },
+        title: {
+            fontSize: 13,
+            marginBottom: '-15px'
+        },
+        pos: {
+            marginBottom: 12,
+        },
+        topic: {
+            display: 'flex',
+            alignItems: 'center'
+        },
+        spinner: {
+            height: '10%',
+            width: '10%',
+            marginRight: '15px'
+        },
+        playerName: {
+            fontSize: 13
+        },
+    };
+
+    return styles;
+});
 
 export default function Form() {
     const classes = useStyles();
     const [formState, setFormState] = React.useState({
         value: 0,
         name: null,
-        questionAmount: null,
+        questionAmount: 2,
         gameId: null,
         showInput: true,
         token: null,
-        game: null
+        game: null,
+        copied: false,
     });
 
     const handleChange = (event, newValue) => {
@@ -82,8 +121,6 @@ export default function Form() {
     };
 
     const submitCreate = () => {
-
-
         fetch('http://localhost:8080/games', {
             method: 'POST',
             headers: {
@@ -119,6 +156,15 @@ export default function Form() {
                         ...formState,
                         showInput: false
                     });
+
+                    for (let i = 0; i < formState.game.players.length; i++) {
+                        classes[formState.game.players[i].name] = makeStyles((theme) => {
+                            return {
+                                color: theme.palette.getContrastText(deepOrange[i * 100]),
+                                backgroundColor: deepOrange[i * 100]
+                            }
+                        })();
+                    }
                 })
             })
             .catch(console.error)
@@ -127,8 +173,9 @@ export default function Form() {
     const submitJoin = () => {
     };
 
+
     return (
-        formState.showInput ?
+        formState.showInput && !formState.game ?
             <div>
                 <Paper class={classes.paper}>
                     <Tabs
@@ -163,6 +210,65 @@ export default function Form() {
                     </form>
                 </TabPanel>
             </div>
-            : formState.game ? <span>{JSON.stringify(formState.game)}</span> : <span>Nothing</span>
+            : formState.game.state === 'WAITING' ?
+            <Card className={classes.waiting}>
+                <CardContent>
+                    <Typography className={classes.title} color="textSecondary" gutterBottom>
+                        Game Lobby <i>{formState.gameId}</i>
+                    </Typography>
+                    <Typography variant="h5" component="h2">
+                        <div className={classes.topic}>
+                            <CircularProgress className={classes.spinner} size={18}/>
+                            <p>
+                                Waiting for Players ({formState.game.players.length}/2)
+                            </p>
+                        </div>
+                    </Typography>
+                    <Typography className={classes.pos} color="textSecondary">
+                        {
+                            formState.game.players.map(player =>
+                                <div>
+                                    <Avatar
+                                        className={classes[player.name]}
+                                    >
+                                        {player.name.split('')[0]}</Avatar>
+                                    <p className={classes.playerName}>{player.name}</p>
+                                </div>
+                            )
+                        }
+                    </Typography>
+                    <Typography variant="body2" component="p">
+                        well meaning and kindly.
+                        <br/>
+                        {'"a benevolent smile"'}
+                    </Typography>
+                </CardContent>
+                <CardActions>
+                    {
+                        formState.game.owner.name === formState.name
+                            ? <Button disabled={formState.game.players.length < 2} variant="contained"
+                                      color="primary">Start</Button>
+                            : null
+                    }
+                    <Button variant="contained" color="primary"
+                            size="small"
+                            onClick={() => {
+                                const input = document.createElement('input');
+                                input.setAttribute('value', 'http://localhost:3000/game/' + formState.gameId);
+                                document.body.appendChild(input);
+                                input.select();
+                                document.execCommand('copy');
+                                document.body.removeChild(input);
+                                setFormState({...formState, copied: true});
+                            }}
+                    >{formState.copied === false ? 'Copy Invite Link' : 'Copied to Clipboard'}
+                    </Button>
+                </CardActions>
+            </Card>
+            : formState.game.state === 'PLAYING' ?
+                <p>Game</p>
+                : formState.game.state === 'ENDING' ?
+                    <p>Ending</p>
+                    : <span>Nothing</span>
     );
 }
