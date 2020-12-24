@@ -50,7 +50,7 @@ function a11yProps(index) {
 }
 
 const useStyles = makeStyles((theme) => {
-    const styles = {
+    return {
         paper: {
             display: 'flex',
             justifyContent: 'center',
@@ -92,8 +92,6 @@ const useStyles = makeStyles((theme) => {
             fontSize: 13
         },
     };
-
-    return styles;
 });
 
 export default function Form() {
@@ -135,7 +133,9 @@ export default function Form() {
 
                     formState.token = obj.token;
                     formState.gameId = obj.gameId;
-                    updateGameState()
+
+                    updateGameState();
+                    setInterval(updateGameState, 500);
                 })
             })
             .catch(console.error)
