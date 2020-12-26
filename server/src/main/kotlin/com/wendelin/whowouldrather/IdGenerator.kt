@@ -1,13 +1,11 @@
 package com.wendelin.whowouldrather
 
-import java.util.*
-import kotlin.streams.asSequence
+import org.apache.commons.lang3.RandomStringUtils
 
 class IdGenerator {
     companion object {
-        private const val LENGTH_GAME: Long = 10
-        private const val LENGTH_TOKEN: Long = 16
-        private const val SRC: String = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        private const val LENGTH_GAME: Int = 10
+        private const val LENGTH_TOKEN: Int = 16
 
         fun generateGameId(): String {
             return generateId(LENGTH_GAME)
@@ -17,12 +15,8 @@ class IdGenerator {
             return generateId(LENGTH_TOKEN)
         }
 
-        private fun generateId(length: Long): String {
-            return Random().ints(length, 0, SRC.length)
-                    .asSequence()
-                    .map(IdGenerator.SRC::get)
-                    .joinToString("")
-
+        private fun generateId(length: Int): String {
+            return RandomStringUtils.randomAlphanumeric(length)
         }
     }
 }
