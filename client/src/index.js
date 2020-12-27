@@ -8,6 +8,8 @@ import Container from '@material-ui/core/Container';
 import Copyright from "./components/copyright";
 import Description from "./components/description";
 import Form from "./components/form";
+import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
+
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -29,22 +31,24 @@ const useStyles = makeStyles((theme) => ({
 
 
 function App() {
+    const theme = createMuiTheme();
     const classes = useStyles();
-
     return (
-        <div className={classes.root}>
-            <CssBaseline />
-            <Container component="main" className={classes.main} maxWidth="sm">
-                <Description/>
-                <Form/>
-            </Container>
-            <footer className={classes.footer}>
-                <Container maxWidth="sm">
-                    <Typography variant="body1">Who Would Rather?</Typography>
-                    <Copyright />
+        <ThemeProvider theme={theme}>
+            <div className={classes.root}>
+                <CssBaseline />
+                <Container component="main" className={classes.main} maxWidth="sm">
+                    <Description/>
+                    <Form/>
                 </Container>
-            </footer>
-        </div>
+                <footer className={classes.footer}>
+                    <Container maxWidth="sm">
+                        <Typography variant="body1">Who Would Rather?</Typography>
+                        <Copyright />
+                    </Container>
+                </footer>
+            </div>
+        </ThemeProvider>
     );
 }
 

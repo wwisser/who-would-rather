@@ -13,8 +13,9 @@ import CardContent from "@material-ui/core/CardContent";
 import CardActions from "@material-ui/core/CardActions";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import Avatar from "@material-ui/core/Avatar";
-import deepPurple from "@material-ui/core/colors/deepPurple";
 import deepOrange from "@material-ui/core/colors/deepOrange";
+import {withTheme} from '@material-ui/core/styles';
+
 
 function TabPanel(props) {
     const {children, value, index, ...other} = props;
@@ -89,12 +90,21 @@ const useStyles = makeStyles((theme) => {
             marginRight: '15px'
         },
         playerName: {
-            fontSize: 13
+            fontSize: 13,
         },
+        playerView: {
+            textAlign: 'center',
+            marginRight: '25px'
+        },
+        players: {
+            display: 'flex',
+            flexWrap: 'nowrap',
+
+        }
     };
 });
 
-export default function Form() {
+function Form({theme}) {
     const classes = useStyles();
     const [formState, setFormState] = React.useState({
         value: 0,
@@ -105,6 +115,7 @@ export default function Form() {
         token: null,
         game: null,
         copied: false,
+        avatarClasses: {}
     });
 
     const handleChange = (event, newValue) => {
@@ -151,20 +162,16 @@ export default function Form() {
         })
             .then(res => {
                 res.text().then(res => {
-                    formState.game = JSON.parse(res);
-                    setFormState({
-                        ...formState,
-                        showInput: false
-                    });
+                    const game = JSON.parse(res);
 
-                    for (let i = 0; i < formState.game.players.length; i++) {
-                        classes[formState.game.players[i].name] = makeStyles((theme) => {
-                            return {
-                                color: theme.palette.getContrastText(deepOrange[i * 100]),
-                                backgroundColor: deepOrange[i * 100]
-                            }
-                        })();
+                    const newAvatars = {};
+                    for (let i = 0; i < game.players.length; i++) {
+                        newAvatars[game.players[i].name] = {
+                            color: theme.palette.getContrastText(deepOrange[(i + 3) * 100]),
+                            backgroundColor: deepOrange[(i + 3) * 100],
+                        };
                     }
+                    setFormState({...formState, avatarClasses: newAvatars, showInput: false, game});
                 })
             })
             .catch(console.error)
@@ -220,22 +227,24 @@ export default function Form() {
                         <div className={classes.topic}>
                             <CircularProgress className={classes.spinner} size={18}/>
                             <p>
-                                Waiting for Players ({formState.game.players.length}/2)
+                                Waiting for Players ({formState.game.players.length}/4)
                             </p>
                         </div>
                     </Typography>
                     <Typography className={classes.pos} color="textSecondary">
-                        {
-                            formState.game.players.map(player =>
-                                <div>
-                                    <Avatar
-                                        className={classes[player.name]}
-                                    >
-                                        {player.name.split('')[0]}</Avatar>
-                                    <p className={classes.playerName}>{player.name}</p>
-                                </div>
-                            )
-                        }
+                        <div className={classes.players}>
+                            {
+                                formState.game.players.map(player =>
+                                    <div className={classes.playerView}>
+                                        <Avatar
+                                            style={formState.avatarClasses[player.name]}
+                                        >
+                                            {player.name.split('')[0]}</Avatar>
+                                        <p className={classes.playerName}>{player.name}</p>
+                                    </div>
+                                )
+                            }
+                        </div>
                     </Typography>
                     <Typography variant="body2" component="p">
                         well meaning and kindly.
@@ -272,3 +281,5 @@ export default function Form() {
                     : <span>Nothing</span>
     );
 }
+
+export default withTheme(Form);
