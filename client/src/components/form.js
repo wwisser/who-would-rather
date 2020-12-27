@@ -16,6 +16,8 @@ import Avatar from "@material-ui/core/Avatar";
 import deepOrange from "@material-ui/core/colors/deepOrange";
 import {withTheme} from '@material-ui/core/styles';
 
+const MIN_PLAYERS = 2;
+const MAX_PLAYERS = 4;
 
 function TabPanel(props) {
     const {children, value, index, ...other} = props;
@@ -227,7 +229,7 @@ function Form({theme}) {
                         <div className={classes.topic}>
                             <CircularProgress className={classes.spinner} size={18}/>
                             <p>
-                                Waiting for Players ({formState.game.players.length}/4)
+                                Waiting for Players ({formState.game.players.length}/{MAX_PLAYERS})
                             </p>
                         </div>
                     </Typography>
@@ -247,15 +249,13 @@ function Form({theme}) {
                         </div>
                     </Typography>
                     <Typography variant="body2" component="p">
-                        well meaning and kindly.
-                        <br/>
-                        {'"a benevolent smile"'}
+                        Amount of players required for start: {MIN_PLAYERS}
                     </Typography>
                 </CardContent>
                 <CardActions>
                     {
                         formState.game.owner.name === formState.name
-                            ? <Button disabled={formState.game.players.length < 2} variant="contained"
+                            ? <Button disabled={formState.game.players.length < MIN_PLAYERS} variant="contained"
                                       color="primary">Start</Button>
                             : null
                     }
