@@ -180,6 +180,25 @@ function Form({theme}) {
     };
 
     const submitJoin = () => {
+        fetch(`http://localhost:8080/games/${formState.gameId}`, {
+            method: 'PUT',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formState)
+        })
+            .then(res => {
+                res.text().then(text => {
+                    const obj = JSON.parse(text);
+
+                    formState.token = obj.token;
+
+                    updateGameState();
+                    setInterval(updateGameState, 500);
+                })
+            })
+            .catch(console.error)
     };
 
 
