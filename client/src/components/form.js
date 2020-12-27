@@ -16,6 +16,7 @@ import Avatar from "@material-ui/core/Avatar";
 import deepOrange from "@material-ui/core/colors/deepOrange";
 import {withTheme} from '@material-ui/core/styles';
 import CopyLink from "../lobby/copy-link";
+import { useHistory, useLocation } from "react-router-dom";
 
 const MIN_PLAYERS = 2;
 const MAX_PLAYERS = 4;
@@ -107,13 +108,18 @@ const useStyles = makeStyles((theme) => {
     };
 });
 
-function Form({theme}) {
+function Form({theme, match}) {
+    const history = useHistory();
+    const location = useLocation();
+
+    const showJoin = match.path.includes('join');
+
     const classes = useStyles();
     const [formState, setFormState] = React.useState({
-        value: 0,
+        value: showJoin ? 1 : 0,
         name: null,
         questionAmount: 2,
-        gameId: null,
+        gameId: match.params.gameId ? match.params.gameId : null,
         showInput: true,
         token: null,
         game: null,
@@ -121,7 +127,8 @@ function Form({theme}) {
     });
 
     const handleChange = (event, newValue) => {
-        setFormState({...formState, value: newValue})
+        setFormState({...formState, value: newValue});
+        history.push(newValue === 0 ? '/game' : '/game/join');
     };
 
     const handleClick = (event) => {
@@ -146,7 +153,6 @@ function Form({theme}) {
 
                     formState.token = obj.token;
                     formState.gameId = obj.gameId;
-
                     updateGameState();
                     setInterval(updateGameState, 500);
                 })
@@ -212,20 +218,12 @@ function Form({theme}) {
                         textColor="primary"
                         aria-label="disabled tabs example"
                     >
-                        <Tab label="Join Game" {...a11yProps(0)} />
-                        <Tab label="Create Game" {...a11yProps(1)} />
+                        <Tab label="Create Game" {...a11yProps(0)} />
+                        <Tab label="Join Game" {...a11yProps(1)} />
                     </Tabs>
 
                 </Paper>
                 <TabPanel value={formState.value} index={0}>
-                    <form className={classes.root}>
-                        <TextField name="name" label="Name" variant="outlined" onChange={handleClick}/>
-                        <TextField name="gameId" label="Game ID" variant="outlined" onChange={handleClick}/>
-                        <Button disabled={!formState.name || !formState.gameId} variant="contained" color="primary"
-                                onClick={submitJoin}>Join</Button>
-                    </form>
-                </TabPanel>
-                <TabPanel value={formState.value} index={1}>
                     <form className={classes.root}>
                         <TextField name="name" label="Name" variant="outlined" onChange={handleClick}/>
                         <TextField name="questionAmount" label="Questions" type="number" variant="outlined"
@@ -234,6 +232,15 @@ function Form({theme}) {
                         <Button disabled={!formState.name || !formState.questionAmount} variant="contained"
                                 color="primary"
                                 onClick={submitCreate}>Create</Button>
+                    </form>
+                </TabPanel>
+                <TabPanel value={formState.value} index={1}>
+                    <form className={classes.root}>
+                        <TextField name="name" label="Name" variant="outlined" onChange={handleClick}/>
+                        <TextField name="gameId" label="Game ID" variant="outlined" value={formState.gameId}
+                                   onChange={handleClick}/>
+                        <Button disabled={!formState.name || !formState.gameId} variant="contained" color="primary"
+                                onClick={submitJoin}>Join</Button>
                     </form>
                 </TabPanel>
             </div>
