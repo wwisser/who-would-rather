@@ -10,7 +10,7 @@ class GameController {
 
     companion object {
         const val MIN_PLAYERS: Int = 2
-        const val MAX_PLAYERS: Int = 5
+        const val MAX_PLAYERS: Int = 4
         val QUESTIONS: List<String> = listOf(
                 "sell their car because of its color",
                 "fail their driving license test multiple times",

@@ -4,7 +4,7 @@ import org.apache.commons.lang3.RandomStringUtils
 
 class IdGenerator {
     companion object {
-        private const val LENGTH_GAME: Int = 10
+        private const val LENGTH_GAME: Int = 6
         private const val LENGTH_TOKEN: Int = 16
 
         fun generateGameId(): String {
