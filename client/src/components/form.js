@@ -15,6 +15,7 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 import Avatar from "@material-ui/core/Avatar";
 import deepOrange from "@material-ui/core/colors/deepOrange";
 import {withTheme} from '@material-ui/core/styles';
+import CopyLink from "../lobby/copy-link";
 
 const MIN_PLAYERS = 2;
 const MAX_PLAYERS = 4;
@@ -116,7 +117,6 @@ function Form({theme}) {
         showInput: true,
         token: null,
         game: null,
-        copied: false,
         avatarClasses: {}
     });
 
@@ -201,7 +201,6 @@ function Form({theme}) {
             .catch(console.error)
     };
 
-
     return (
         formState.showInput && !formState.game ?
             <div>
@@ -278,19 +277,7 @@ function Form({theme}) {
                                       color="primary">Start</Button>
                             : null
                     }
-                    <Button variant="contained" color="primary"
-                            size="small"
-                            onClick={() => {
-                                const input = document.createElement('input');
-                                input.setAttribute('value', 'http://localhost:3000/game/' + formState.gameId);
-                                document.body.appendChild(input);
-                                input.select();
-                                document.execCommand('copy');
-                                document.body.removeChild(input);
-                                setFormState({...formState, copied: true});
-                            }}
-                    >{formState.copied === false ? 'Copy Invite Link' : 'Copied to Clipboard'}
-                    </Button>
+                    <CopyLink gameId={formState.gameId}/>
                 </CardActions>
             </Card>
             : formState.game.state === 'PLAYING' ?
