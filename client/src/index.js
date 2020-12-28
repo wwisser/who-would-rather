@@ -9,6 +9,9 @@ import Description from "./components/description";
 import Form from "./components/form";
 import {createMuiTheme, ThemeProvider} from '@material-ui/core/styles';
 import {BrowserRouter, Route} from "react-router-dom";
+import AppBar from "@material-ui/core/AppBar";
+import Toolbar from "@material-ui/core/Toolbar";
+import HowToVote from '@material-ui/icons/HowToVote';
 
 function App() {
     const useStyles = makeStyles((theme) => ({
@@ -27,6 +30,9 @@ function App() {
             backgroundColor:
                 theme.palette.type === 'light' ? theme.palette.grey[200] : theme.palette.grey[800],
         },
+        icon: {
+            marginRight: theme.spacing(2)
+        }
     }));
 
     const theme = createMuiTheme();
@@ -35,13 +41,21 @@ function App() {
         <ThemeProvider theme={theme}>
             <div className={classes.root}>
                 <CssBaseline/>
+                <AppBar position="relative">
+                    <Toolbar>
+                        <HowToVote className={classes.icon}/>
+                        <Typography variant="h6" color="inherit" noWrap>
+                            Who Would Rather?
+                        </Typography>
+                    </Toolbar>
+                </AppBar>
                 <Container component="main" className={classes.main} maxWidth="sm">
                     <BrowserRouter>
                         <switch>
                             <Route path="/game" exact component={Form}/>
                             <Route path="/game/join" exact component={Form}/>
                             <Route path="/game/join/:gameId" exact component={Form}/>
-                            <Route path="/" exact component={Description} />
+                            <Route path="/" exact component={Description}/>
                         </switch>
                     </BrowserRouter>,
                 </Container>

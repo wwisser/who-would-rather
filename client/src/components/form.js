@@ -16,7 +16,7 @@ import Avatar from "@material-ui/core/Avatar";
 import deepOrange from "@material-ui/core/colors/deepOrange";
 import {withTheme} from '@material-ui/core/styles';
 import CopyLink from "../lobby/copy-link";
-import { useHistory, useLocation } from "react-router-dom";
+import {useHistory, useLocation} from "react-router-dom";
 
 const MIN_PLAYERS = 2;
 const MAX_PLAYERS = 4;
@@ -112,6 +112,7 @@ function Form({theme, match}) {
     const history = useHistory();
     const location = useLocation();
 
+    console.log(location);
     const showJoin = match.path.includes('join');
 
     const classes = useStyles();
@@ -209,20 +210,18 @@ function Form({theme, match}) {
 
     return (
         formState.showInput && !formState.game ?
-            <div>
-                <Paper class={classes.paper}>
-                    <Tabs
-                        value={formState.value}
-                        onChange={handleChange}
-                        indicatorColor="primary"
-                        textColor="primary"
-                        aria-label="disabled tabs example"
-                    >
-                        <Tab label="Create Game" {...a11yProps(0)} />
-                        <Tab label="Join Game" {...a11yProps(1)} />
-                    </Tabs>
+            <Card class={classes.paper}>
+                <Tabs
+                    value={formState.value}
+                    onChange={handleChange}
+                    indicatorColor="primary"
+                    textColor="primary"
+                    aria-label="disabled tabs example"
+                >
+                    <Tab label="Create Game" {...a11yProps(0)} />
+                    <Tab label="Join Game" {...a11yProps(1)} />
+                </Tabs>
 
-                </Paper>
                 <TabPanel value={formState.value} index={0}>
                     <form className={classes.root}>
                         <TextField name="name" label="Name" variant="outlined" onChange={handleClick}/>
@@ -243,7 +242,8 @@ function Form({theme, match}) {
                                 onClick={submitJoin}>Join</Button>
                     </form>
                 </TabPanel>
-            </div>
+            </Card>
+
             : formState.game.state === 'WAITING' ?
             <Card className={classes.waiting}>
                 <CardContent>
