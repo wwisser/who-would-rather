@@ -51,13 +51,11 @@ function App() {
                 </AppBar>
                 <Container component="main" className={classes.main} maxWidth="sm">
                     <BrowserRouter>
-                        <switch>
                             <Route path="/game" exact component={Form}/>
                             <Route path="/game/join" exact component={Form}/>
                             <Route path="/game/join/:gameId" exact component={Form}/>
                             <Route path="/" exact component={Description}/>
-                        </switch>
-                    </BrowserRouter>,
+                    </BrowserRouter>
                 </Container>
                 <footer className={classes.footer}>
                     <Container maxWidth="sm">

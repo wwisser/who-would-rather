@@ -2,7 +2,6 @@ import React from 'react';
 import {makeStyles} from '@material-ui/core/styles';
 import Tab from "@material-ui/core/Tab";
 import Tabs from "@material-ui/core/Tabs";
-import Paper from "@material-ui/core/Paper";
 import * as PropTypes from "prop-types";
 import Box from "@material-ui/core/Box";
 import Typography from "@material-ui/core/Typography";
@@ -16,7 +15,7 @@ import Avatar from "@material-ui/core/Avatar";
 import deepOrange from "@material-ui/core/colors/deepOrange";
 import {withTheme} from '@material-ui/core/styles';
 import CopyLink from "../lobby/copy-link";
-import {useHistory, useLocation} from "react-router-dom";
+import {useHistory} from "react-router-dom";
 
 const MIN_PLAYERS = 2;
 const MAX_PLAYERS = 4;
@@ -34,7 +33,7 @@ function TabPanel(props) {
         >
             {value === index && (
                 <Box p={3}>
-                    <Typography>{children}</Typography>
+                    <div>{children}</div>
                 </Box>
             )}
         </div>
@@ -61,7 +60,8 @@ const useStyles = makeStyles((theme) => {
             justifyContent: 'center',
             alignItems: 'center',
             flexWrap: 'wrap',
-            padding: '10px'
+            padding: '10px',
+            minWidth: 275
         },
         root: {
             '& > *': {
@@ -110,9 +110,7 @@ const useStyles = makeStyles((theme) => {
 
 function Form({theme, match}) {
     const history = useHistory();
-    const location = useLocation();
 
-    console.log(location);
     const showJoin = match.path.includes('join');
 
     const classes = useStyles();
@@ -132,7 +130,7 @@ function Form({theme, match}) {
         history.push(newValue === 0 ? '/game' : '/game/join');
     };
 
-    const handleClick = (event) => {
+    const handleInput = (event) => {
         setFormState({
             ...formState,
             [event.target.name]: event.target.value
@@ -210,7 +208,7 @@ function Form({theme, match}) {
 
     return (
         formState.showInput && !formState.game ?
-            <Card class={classes.paper}>
+            <Card className={classes.paper}>
                 <Tabs
                     value={formState.value}
                     onChange={handleChange}
@@ -224,10 +222,10 @@ function Form({theme, match}) {
 
                 <TabPanel value={formState.value} index={0}>
                     <form className={classes.root}>
-                        <TextField name="name" label="Name" variant="outlined" onChange={handleClick}/>
+                        <TextField name="name" label="Name" variant="outlined" onChange={handleInput}/>
                         <TextField name="questionAmount" label="Questions" type="number" variant="outlined"
                                    defaultValue={2}
-                                   onChange={handleClick}/>
+                                   onChange={handleInput}/>
                         <Button disabled={!formState.name || !formState.questionAmount} variant="contained"
                                 color="primary"
                                 onClick={submitCreate}>Create</Button>
@@ -235,9 +233,10 @@ function Form({theme, match}) {
                 </TabPanel>
                 <TabPanel value={formState.value} index={1}>
                     <form className={classes.root}>
-                        <TextField name="name" label="Name" variant="outlined" onChange={handleClick}/>
-                        <TextField name="gameId" label="Game ID" variant="outlined" value={formState.gameId}
-                                   onChange={handleClick}/>
+                        <TextField name="name" label="Name" variant="outlined" onChange={handleInput}/>
+                        <TextField name="gameId" label="Game ID" variant="outlined"
+                                   value={formState.gameId ? formState.gameId : ""}
+                                   onChange={handleInput}/>
                         <Button disabled={!formState.name || !formState.gameId} variant="contained" color="primary"
                                 onClick={submitJoin}>Join</Button>
                     </form>
@@ -250,30 +249,26 @@ function Form({theme, match}) {
                     <Typography className={classes.title} color="textSecondary" gutterBottom>
                         Game Lobby <i>{formState.gameId}</i>
                     </Typography>
-                    <Typography variant="h5" component="h2">
-                        <div className={classes.topic}>
-                            <CircularProgress className={classes.spinner} size={18}/>
-                            <p>
-                                Waiting for Players ({formState.game.players.length}/{MAX_PLAYERS})
-                            </p>
-                        </div>
+                    <Typography variant="h5" component="h2" className={classes.topic}>
+                        <CircularProgress className={classes.spinner} size={18}/>
+                        <p>
+                            Waiting for Players ({formState.game.players.length}/{MAX_PLAYERS})
+                        </p>
                     </Typography>
-                    <Typography className={classes.pos} color="textSecondary">
-                        <div className={classes.players}>
-                            {
-                                formState.game.players.map(player =>
-                                    <div className={classes.playerView}>
-                                        <Avatar
-                                            style={formState.avatarClasses[player.name]}
-                                        >
-                                            {player.name.split('')[0]}</Avatar>
-                                        <p className={classes.playerName}>{player.name}</p>
-                                    </div>
-                                )
-                            }
-                        </div>
-                    </Typography>
-                    <Typography variant="body2" component="p">
+                    <div className={classes.players} color="textSecondary">
+                        {
+                            formState.game.players.map(player =>
+                                <div key={player.name} className={classes.playerView}>
+                                    <Avatar
+                                        style={formState.avatarClasses[player.name]}
+                                    >
+                                        {player.name.split('')[0]}</Avatar>
+                                    <p className={classes.playerName}>{player.name}</p>
+                                </div>
+                            )
+                        }
+                    </div>
+                    <Typography variant="body2" component="span">
                         Amount of players required for start: {MIN_PLAYERS}
                     </Typography>
                 </CardContent>
