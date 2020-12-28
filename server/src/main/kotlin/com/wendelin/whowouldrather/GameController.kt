@@ -1,5 +1,6 @@
 package com.wendelin.whowouldrather
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.wendelin.whowouldrather.IdGenerator.Companion.generateToken
 import org.springframework.web.bind.annotation.*
 import java.util.concurrent.ConcurrentHashMap
@@ -145,38 +146,18 @@ class GameController {
             throw RuntimeException("Failed to resolve token")
         }
 
-        return truncateGameForResponse(game)
+        return game
     }
 
 
     @GetMapping("/games")
     fun getAllGames(): Collection<Game> {
-        return this.games.values.map { truncateGameForResponse(it) }.toList()
-    }
-
-    fun truncateGameForResponse(game: Game): Game {
-        val responseGame: Game = game.copy()
-        if (game.state != State.ENDING) {
-            responseGame.votes = game.votes.entries
-                    .filterNot { entry -> entry.key == game.currentQuestion }
-                    .associateByTo(mutableMapOf(), { it.key }, { it.value })
-        }
-
-        responseGame.questions = mutableListOf()
-        responseGame.players = game.players.map { player ->
-            val newPlayer = player.copy()
-            newPlayer.token = ""
-
-            return@map newPlayer
-        }.toMutableList()
-        responseGame.owner.token = ""
-
-        return responseGame
+        return this.games.values
     }
 
 }
 
-data class Player(val name: String, var token: String)
+data class Player(val name: String, @JsonIgnore var token: String)
 
 data class Vote(val from: Player, val target: Player, val time: Long)
 
@@ -191,7 +172,7 @@ data class Game(
         var players: MutableList<Player>,
         var owner: Player,
         var state: State,
-        var questions: List<String>,
-        var votes: MutableMap<String, MutableSet<Vote>>, // question <-> votes
+        @JsonIgnore var questions: List<String>,
+        @JsonIgnore var votes: MutableMap<String, MutableSet<Vote>>, // question <-> votes
         var currentQuestion: String?
 )
