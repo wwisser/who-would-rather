@@ -54,9 +54,10 @@ class GameController {
     }
 
     data class JoinRequest(val name: String)
+    data class JoinResponse(val token: String)
 
     @PutMapping("/games/{gameId}")
-    fun joinGame(@PathVariable("gameId") gameId: String, @RequestBody body: JoinRequest): Player {
+    fun joinGame(@PathVariable("gameId") gameId: String, @RequestBody body: JoinRequest): JoinResponse {
         val game: Game = this.games[gameId] ?: throw RuntimeException("Game $gameId not found")
 
         if (game.state != State.WAITING) {
@@ -77,7 +78,7 @@ class GameController {
         val player = Player(body.name, generateToken())
         game.players.add(player)
 
-        return player
+        return JoinResponse(player.token)
     }
 
     @PutMapping("/games/{gameId}/start")
