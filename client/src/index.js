@@ -27,14 +27,10 @@ function App() {
             backgroundColor:
                 theme.palette.type === 'light' ? theme.palette.grey[200] : theme.palette.grey[800],
         },
-        icon: {
-            marginRight: theme.spacing(2)
-        }
     }));
 
     const theme = createMuiTheme();
     const classes = useStyles();
-
 
     return (
         <BrowserRouter>

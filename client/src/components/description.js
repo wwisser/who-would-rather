@@ -8,7 +8,7 @@ export default function Description() {
             <Typography variant="h2" component="h1" gutterBottom>
                 Who Would Rather?
             </Typography>
-            <Card style={{width: 40}}>
+            <Card style={{minWidth: 275}}>
                 <Typography variant="h5" component="h2" gutterBottom>
                     Join or create a new game below.
                 </Typography>
