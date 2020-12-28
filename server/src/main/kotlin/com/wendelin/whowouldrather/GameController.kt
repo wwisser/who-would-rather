@@ -145,26 +145,38 @@ class GameController {
             throw RuntimeException("Failed to resolve token")
         }
 
+        return truncateGameForResponse(game)
+    }
+
+
+    @GetMapping("/games")
+    fun getAllGames(): Collection<Game> {
+        return this.games.values.map { truncateGameForResponse(it) }.toList()
+    }
+
+    fun truncateGameForResponse(game: Game): Game {
         val responseGame: Game = game.copy()
-        responseGame.questions = mutableListOf()
         if (game.state != State.ENDING) {
             responseGame.votes = game.votes.entries
                     .filterNot { entry -> entry.key == game.currentQuestion }
                     .associateByTo(mutableMapOf(), { it.key }, { it.value })
         }
 
+        responseGame.questions = mutableListOf()
+        responseGame.players = game.players.map { player ->
+            val newPlayer = player.copy()
+            newPlayer.token = ""
+
+            return@map newPlayer
+        }.toMutableList()
+        responseGame.owner.token = ""
+
         return responseGame
-    }
-
-
-    @GetMapping("/games")
-    fun getAllGames(): Collection<Game> {
-        return this.games.values
     }
 
 }
 
-data class Player(val name: String, val token: String)
+data class Player(val name: String, var token: String)
 
 data class Vote(val from: Player, val target: Player, val time: Long)
 
@@ -176,7 +188,7 @@ enum class State {
 
 data class Game(
         val id: String,
-        val players: MutableList<Player>,
+        var players: MutableList<Player>,
         var owner: Player,
         var state: State,
         var questions: List<String>,
