@@ -3,6 +3,7 @@ package com.wendelin.whowouldrather
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.wendelin.whowouldrather.IdGenerator.Companion.generateToken
 import org.springframework.web.bind.annotation.*
+import java.time.LocalDateTime
 import java.util.concurrent.ConcurrentHashMap
 
 @RestController
@@ -42,6 +43,7 @@ class GameController {
         val player = Player(body.name, token)
         this.games[id] = Game(
                 id,
+                LocalDateTime.now(),
                 mutableListOf(player),
                 player,
                 State.WAITING,
@@ -170,6 +172,7 @@ enum class State {
 
 data class Game(
         val id: String,
+        val created: LocalDateTime,
         var players: MutableList<Player>,
         var owner: Player,
         var state: State,
