@@ -142,6 +142,7 @@ class GameController (val storage: GameStorage) {
         if (votes.size == game.players.size) {
             if (game.votes.size == game.questions.size) {
                 game.state = State.ENDING
+                game.currentQuestion = null
                 return
             }
 
