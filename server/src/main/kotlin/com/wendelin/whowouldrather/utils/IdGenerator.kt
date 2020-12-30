@@ -1,4 +1,4 @@
-package com.wendelin.whowouldrather
+package com.wendelin.whowouldrather.utils
 
 import org.apache.commons.lang3.RandomStringUtils
 

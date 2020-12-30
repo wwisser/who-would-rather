@@ -1,13 +1,18 @@
 package com.wendelin.whowouldrather
 
-import com.fasterxml.jackson.annotation.JsonIgnore
-import com.wendelin.whowouldrather.IdGenerator.Companion.generateToken
+import com.wendelin.whowouldrather.storage.GameStorage
+import com.wendelin.whowouldrather.storage.LocalGameStorage
+import com.wendelin.whowouldrather.utils.IdGenerator
+import com.wendelin.whowouldrather.utils.IdGenerator.Companion.generateToken
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.stereotype.Component
 import org.springframework.web.bind.annotation.*
 import java.util.concurrent.ConcurrentHashMap
 
 @RestController
 @CrossOrigin("*")
-class GameController {
+@Component
+class GameController (val storage: GameStorage) {
 
     companion object {
         const val MIN_PLAYERS: Int = 2
@@ -21,8 +26,6 @@ class GameController {
         const val MIN_QUESTIONS: Int = 2
     }
 
-    val games: MutableMap<String, Game> = ConcurrentHashMap()
-
     data class CreateRequest(val name: String, val questionAmount: Int)
     data class CreateResponse(val gameId: String, val token: String)
 
@@ -34,14 +37,15 @@ class GameController {
 
         var id: String = IdGenerator.generateGameId()
 
-        while (this.games.containsKey(id)) {
+        while (this.storage.existsGame(id)) {
             id = IdGenerator.generateGameId()
         }
 
         val token: String = IdGenerator.generateToken()
         val player = Player(body.name, token)
-        this.games[id] = Game(
+        this.storage.addGame(Game(
                 id,
+                System.currentTimeMillis(),
                 System.currentTimeMillis(),
                 mutableListOf(player),
                 player,
@@ -49,7 +53,7 @@ class GameController {
                 GameController.QUESTIONS.shuffled().subList(0, body.questionAmount - 1),
                 ConcurrentHashMap(),
                 null
-        )
+        ))
 
         return CreateResponse(id, token)
     }
@@ -59,7 +63,7 @@ class GameController {
 
     @PutMapping("/games/{gameId}")
     fun joinGame(@PathVariable("gameId") gameId: String, @RequestBody body: JoinRequest): JoinResponse {
-        val game: Game = this.games[gameId] ?: throw RuntimeException("Game $gameId not found")
+        val game: Game = this.storage.getGame(gameId)
 
         if (game.state != State.WAITING) {
             throw RuntimeException("Game already running")
@@ -79,12 +83,14 @@ class GameController {
         val player = Player(body.name, generateToken())
         game.players.add(player)
 
+        game.lastUpdate = System.currentTimeMillis()
+
         return JoinResponse(player.token)
     }
 
     @PutMapping("/games/{gameId}/start")
     fun startGame(@PathVariable("gameId") gameId: String, @RequestHeader("token") token: String) {
-        val game: Game = this.games[gameId] ?: throw RuntimeException("Game $gameId not found")
+        val game: Game = this.storage.getGame(gameId)
         val player: Player = game.players.find { it.token == token }
                 ?: throw RuntimeException("Failed to resolve token")
 
@@ -98,6 +104,8 @@ class GameController {
         } else {
             throw RuntimeException("Failed to start game")
         }
+
+        game.lastUpdate = System.currentTimeMillis()
     }
 
     data class VoteRequest(val target: String)
@@ -105,10 +113,10 @@ class GameController {
     @PutMapping("/games/{gameId}/vote")
     fun vote(
             @PathVariable("gameId") gameId: String,
-            @RequestHeader("token") token: String,
+            @RequestHeader("Token") token: String,
             @RequestBody request: VoteRequest
     ) {
-        val game: Game = this.games[gameId] ?: throw RuntimeException("Game $gameId not found")
+        val game: Game = this.storage.getGame(gameId)
         val player: Player = game.players.find { it.token == token }
                 ?: throw RuntimeException("Failed to resolve token")
 
@@ -139,11 +147,13 @@ class GameController {
 
             game.currentQuestion = game.questions[game.questions.indexOf(game.currentQuestion!!) + 1]
         }
+
+        game.lastUpdate = System.currentTimeMillis()
     }
 
     @GetMapping("/games/{gameId}")
-    fun getGame(@PathVariable("gameId") gameId: String, @RequestHeader("token") token: String): Game {
-        val game: Game = this.games[gameId] ?: throw RuntimeException("Game $gameId not found")
+    fun getGame(@PathVariable("gameId") gameId: String, @RequestHeader("Token") token: String): Game {
+        val game: Game = this.storage.getGame(gameId)
         if (game.players.none { it.token == token }) {
             throw RuntimeException("Failed to resolve token")
         }
@@ -154,28 +164,7 @@ class GameController {
 
     @GetMapping("/games")
     fun getAllGames(): Collection<Game> {
-        return this.games.values
+        return this.storage.getAll()
     }
 
 }
-
-data class Player(val name: String, @JsonIgnore var token: String)
-
-data class Vote(val from: Player, val target: Player, val time: Long)
-
-enum class State {
-    WAITING,
-    PLAYING,
-    ENDING
-}
-
-data class Game(
-        val id: String,
-        val created: Long,
-        var players: MutableList<Player>,
-        var owner: Player,
-        var state: State,
-        @JsonIgnore var questions: List<String>,
-        @JsonIgnore var votes: MutableMap<String, MutableSet<Vote>>, // question <-> votes
-        var currentQuestion: String?
-)
