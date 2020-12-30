@@ -42,7 +42,7 @@ class Description extends React.Component {
                         const date = new Date();
 
 
-                        const hours = date.getHours() === 0 ? '00' : date.getHours();
+                        const hours = date.getHours() < 10  ? '0' + date.getHours() : date.getHours();
 
                         this.setState({
                             loaded: true,
