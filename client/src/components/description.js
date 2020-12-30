@@ -76,7 +76,7 @@ class Description extends React.Component {
                 <Paper style={{width: 600, padding: 20}}>
                     <Alert style={{marginBottom: 10}} severity="info">
                         A game where up to 4 players vote each other or them selves.
-                        <br/>Whoever they think a random occurring question applies the most.
+                        <br/>Whoever they think a randomly occurring question applies the most.
                     </Alert>
                     <Typography component="h1" variant="h6" color="primary" gutterBottom>
                         Players
