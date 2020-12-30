@@ -276,10 +276,28 @@ function Form({theme, match}) {
                     {
                         formState.game.owner.name === formState.name
                             ? <Button disabled={formState.game.players.length < MIN_PLAYERS} variant="contained"
-                                      color="primary">Start</Button>
+                                      color="primary" onClick={() => {
+                                fetch(`http://localhost:8080/games/${formState.gameId}/start`, {
+                                    method: 'PUT',
+                                    headers: {
+                                        'Accept': 'application/json',
+                                        'Content-Type': 'application/json',
+                                        'token': formState.token
+                                    },
+                                    body: JSON.stringify(formState),
+                                })
+                                    .then(res => {
+                                        res.text().then(() => {
+                                            formState.game.state = 'PLAYING';
+                                            setFormState(formState);
+                                        })
+                                    })
+                                    .catch(console.error)
+                            }
+                            }>Start</Button>
                             : null
                     }
-                    <CopyLink gameId={formState.gameId}/>
+                    < CopyLink gameId={formState.gameId}/>
                 </CardActions>
             </Card>
             : formState.game.state === 'PLAYING' ?

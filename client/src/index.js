@@ -44,9 +44,11 @@ function App() {
                         <Route path="/" exact component={Description}/>
                     </Container>
                     <footer className={classes.footer}>
-                        <Container maxWidth="sm">
-                            <Typography variant="body1">Who Would Rather?</Typography>
-                            <Footer/>
+                        <Container maxWidth="sm" style={{display: 'flex'}}>
+                            <div style={{marginRight: 150}}>
+                                <Typography variant="body1">Who Would Rather?</Typography>
+                                <Footer/>
+                            </div>
                         </Container>
                     </footer>
                 </div>
