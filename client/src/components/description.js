@@ -43,11 +43,13 @@ class Description extends React.Component {
 
 
                         const hours = date.getHours() < 10  ? '0' + date.getHours() : date.getHours();
+                        const minutes = date.getMinutes() < 10  ? '0' + date.getMinutes() : date.getMinutes();
+
 
                         this.setState({
                             loaded: true,
                             rowData: games,
-                            lastUpdate: hours + ':' + date.getMinutes() + ":" + date.getSeconds()
+                            lastUpdate: hours + ':' + minutes + ":" + date.getSeconds()
                         });
                     })
                 })
