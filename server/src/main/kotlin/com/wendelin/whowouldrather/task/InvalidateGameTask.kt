@@ -15,20 +15,7 @@ class InvalidateGameTask {
     private lateinit var gameStorage: GameStorage
 
     companion object {
-        var MAX_IDLE_TIME: Long = TimeUnit.MINUTES.toMillis(1)
-    }
-
-    @Scheduled(fixedRate = 5000)
-    fun invalidateIdleGames() {
-        val gamesToRemove: MutableList<Game> = mutableListOf()
-
-        for (game in this.gameStorage.getAll()) {
-            if ((System.currentTimeMillis() - game.lastUpdate) > MAX_IDLE_TIME) {
-                gamesToRemove.add(game)
-            }
-        }
-
-        gamesToRemove.forEach { this.gameStorage.removeGame(it) }
+        var MAX_IDLE_TIME: Long = TimeUnit.MINUTES.toMillis(4)
     }
 
     @Scheduled(fixedRate = 10000)
@@ -36,7 +23,7 @@ class InvalidateGameTask {
         val gamesToRemove: MutableList<Game> = mutableListOf()
 
         for (game in this.gameStorage.getAll()) {
-            if (game.state == State.ENDING && (System.currentTimeMillis() - game.lastUpdate) > MAX_IDLE_TIME) {
+            if (game.state == State.ENDING || (System.currentTimeMillis() - game.lastUpdate) > MAX_IDLE_TIME) {
                 gamesToRemove.add(game)
             }
         }
