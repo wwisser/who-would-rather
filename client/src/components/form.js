@@ -11,11 +11,10 @@ import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
 import CardActions from "@material-ui/core/CardActions";
 import CircularProgress from "@material-ui/core/CircularProgress";
-import Avatar from "@material-ui/core/Avatar";
-import deepOrange from "@material-ui/core/colors/deepOrange";
-import {withTheme} from '@material-ui/core/styles';
 import CopyLink from "../lobby/copy-link";
 import {useHistory} from "react-router-dom";
+import PlayerList from "./player-list";
+import Playing from "../lobby/playing";
 
 const MIN_PLAYERS = 2;
 const MAX_PLAYERS = 4;
@@ -88,7 +87,7 @@ const useStyles = makeStyles((theme) => {
             display: 'flex',
             alignItems: 'center'
         },
-        spinner: {
+        icon: {
             height: '10%',
             width: '10%',
             marginRight: '15px'
@@ -108,7 +107,7 @@ const useStyles = makeStyles((theme) => {
     };
 });
 
-function Form({theme, match}) {
+function Form({match}) {
     const history = useHistory();
 
     const showJoin = match.path.includes('join');
@@ -121,9 +120,10 @@ function Form({theme, match}) {
         gameId: match.params.gameId ? match.params.gameId : null,
         showInput: true,
         token: null,
-        game: null,
-        avatarClasses: {}
+        game: null
     });
+
+    let interval = null;
 
     const handleChange = (event, newValue) => {
         setFormState({...formState, value: newValue});
@@ -153,7 +153,7 @@ function Form({theme, match}) {
                     formState.token = obj.token;
                     formState.gameId = obj.gameId;
                     updateGameState();
-                    setInterval(updateGameState, 500);
+                    interval = setInterval(updateGameState, 500);
                 })
             })
             .catch(console.error)
@@ -164,21 +164,18 @@ function Form({theme, match}) {
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json',
-                'token': formState.token
+                'Token': formState.token
             },
         })
             .then(res => {
                 res.text().then(res => {
                     const game = JSON.parse(res);
 
-                    const newAvatars = {};
-                    for (let i = 0; i < game.players.length; i++) {
-                        newAvatars[game.players[i].name] = {
-                            color: theme.palette.getContrastText(deepOrange[(i + 3) * 100]),
-                            backgroundColor: deepOrange[(i + 3) * 100],
-                        };
+                    if (game.state === 'ENDING') {
+                        clearInterval(interval);
                     }
-                    setFormState({...formState, avatarClasses: newAvatars, showInput: false, game});
+
+                    setFormState({...formState, showInput: false, game});
                 })
             })
             .catch(console.error)
@@ -250,24 +247,12 @@ function Form({theme, match}) {
                         Game Lobby <i>{formState.gameId}</i>
                     </Typography>
                     <Typography variant="h5" component="h2" className={classes.topic}>
-                        <CircularProgress className={classes.spinner} size={18}/>
+                        <CircularProgress className={classes.icon} size={18}/>
                         <p>
                             Waiting for Players ({formState.game.players.length}/{MAX_PLAYERS})
                         </p>
                     </Typography>
-                    <div className={classes.players} color="textSecondary">
-                        {
-                            formState.game.players.map(player =>
-                                <div key={player.name} className={classes.playerView}>
-                                    <Avatar
-                                        style={formState.avatarClasses[player.name]}
-                                    >
-                                        {player.name.split('')[0]}</Avatar>
-                                    <p className={classes.playerName}>{player.name}</p>
-                                </div>
-                            )
-                        }
-                    </div>
+                    <PlayerList players={formState.game.players}/>
                     <Typography variant="body2" component="span">
                         Amount of players required for start: {MIN_PLAYERS}
                     </Typography>
@@ -282,7 +267,7 @@ function Form({theme, match}) {
                                     headers: {
                                         'Accept': 'application/json',
                                         'Content-Type': 'application/json',
-                                        'token': formState.token
+                                        'Token': formState.token
                                     },
                                     body: JSON.stringify(formState),
                                 })
@@ -301,11 +286,11 @@ function Form({theme, match}) {
                 </CardActions>
             </Card>
             : formState.game.state === 'PLAYING' ?
-                <p>Game</p>
+                <Playing game={formState.game} token={formState.token}/>
                 : formState.game.state === 'ENDING' ?
                     <p>Ending</p>
                     : <span>Nothing</span>
     );
 }
 
-export default withTheme(Form);
+export default Form;
