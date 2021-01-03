@@ -11,10 +11,10 @@ import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
 import CardActions from "@material-ui/core/CardActions";
 import CircularProgress from "@material-ui/core/CircularProgress";
-import CopyLink from "../lobby/copy-link";
+import CopyLink from "../waiting/copy-link";
 import {useHistory} from "react-router-dom";
 import PlayerList from "./player-list";
-import Playing from "../lobby/playing";
+import Playing from "../playing/playing";
 
 const MIN_PLAYERS = 2;
 const MAX_PLAYERS = 4;

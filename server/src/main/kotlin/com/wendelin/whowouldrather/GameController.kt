@@ -1,10 +1,8 @@
 package com.wendelin.whowouldrather
 
 import com.wendelin.whowouldrather.storage.GameStorage
-import com.wendelin.whowouldrather.storage.LocalGameStorage
 import com.wendelin.whowouldrather.utils.IdGenerator
 import com.wendelin.whowouldrather.utils.IdGenerator.Companion.generateToken
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import org.springframework.web.bind.annotation.*
 import java.util.concurrent.ConcurrentHashMap
@@ -12,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap
 @RestController
 @CrossOrigin("*")
 @Component
-class GameController (val storage: GameStorage) {
+class GameController(val storage: GameStorage) {
 
     companion object {
         const val MIN_PLAYERS: Int = 2
@@ -112,7 +110,7 @@ class GameController (val storage: GameStorage) {
     fun vote(
             @PathVariable("gameId") gameId: String,
             @RequestHeader("Token") token: String
-    ): MutableMap<String, MutableSet<Vote>> {
+    ): Map<String, Set<Vote>> {
         val game: Game = this.storage.getGame(gameId)
         if (game.players.none { it.token == token }) {
             throw RuntimeException("Failed to resolve token")

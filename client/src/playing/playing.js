@@ -6,7 +6,6 @@ import React from "react";
 import {makeStyles} from "@material-ui/core";
 import HowToVote from '@material-ui/icons/HowToVote'
 
-
 export default function Playing({game, token}) {
     const useStyles = makeStyles((theme) => {
         return {
@@ -45,8 +44,6 @@ export default function Playing({game, token}) {
 
     const classes = useStyles();
 
-    console.log(game);
-
     const [votes, setVotes] = React.useState({});
 
     const interval = setInterval(() => {
@@ -66,7 +63,6 @@ export default function Playing({game, token}) {
                     }
 
                     setVotes(votes);
-                    console.log(votes);
                 })
             })
             .catch(console.error)
