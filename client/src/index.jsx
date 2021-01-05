@@ -3,12 +3,12 @@ import ReactDOM from 'react-dom';
 import Typography from '@material-ui/core/Typography';
 import {makeStyles} from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
-import Footer from "./components/footer";
+import Footer from "./layout/footer";
 import Description from "./components/description";
 import Form from "./components/form";
 import {createMuiTheme, ThemeProvider} from '@material-ui/core/styles';
 import {BrowserRouter, Route} from "react-router-dom";
-import Header from "./components/header";
+import Header from "./layout/header";
 
 function App() {
     const useStyles = makeStyles((theme) => ({

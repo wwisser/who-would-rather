@@ -1,6 +1,6 @@
 import React, {useEffect} from "react";
-import Waiting from "../waiting/waiting";
-import Playing from "../playing/playing";
+import Waiting from "./waiting";
+import Playing from "./playing";
 
 export default function Game({gameId, nameSelf, token}) {
     const [game, setGame] = React.useState({});
