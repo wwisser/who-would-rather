@@ -6,7 +6,7 @@ import React from "react";
 import {makeStyles} from "@material-ui/core";
 import HowToVote from '@material-ui/icons/HowToVote'
 
-export default function Playing({game}) {
+export default function Playing({game, token}) {
     const useStyles = makeStyles((theme) => {
         return {
             title: {
@@ -41,7 +41,7 @@ export default function Playing({game}) {
                         Who would rather <b>{game.currentQuestion}</b>?
                     </p>
                 </Typography>
-                <PlayerList players={game.players}/>
+                <PlayerList game={game} token={token}/>
                 <Typography variant="body2" component="span">
                     Click an avatar to vote for a player. You can also vote for yourself.
                 </Typography>

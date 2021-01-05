@@ -67,7 +67,7 @@ export default function Waiting({game, nameSelf, token}) {
                         Waiting for Players ({game.players.length}/{MAX_PLAYERS})
                     </p>
                 </Typography>
-                <PlayerList players={game.players}/>
+                <PlayerList game={game} token={token}/>
                 <Typography variant="body2" component="span">
                     Amount of players required for start: {MIN_PLAYERS}
                 </Typography>
