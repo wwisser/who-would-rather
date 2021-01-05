@@ -48,7 +48,7 @@ class GameController(val storage: GameStorage) {
                 mutableListOf(player),
                 player,
                 State.WAITING,
-                GameController.QUESTIONS.shuffled().subList(0, body.questionAmount - 1),
+                GameController.QUESTIONS.shuffled().subList(0, body.questionAmount),
                 ConcurrentHashMap(),
                 null
         ))
@@ -70,7 +70,6 @@ class GameController(val storage: GameStorage) {
         if (game.players.size >= GameController.MAX_PLAYERS) {
             throw RuntimeException("Lobby already full")
         }
-
 
         val nameTaken: Boolean = game.players.any { it.name == body.name }
 
