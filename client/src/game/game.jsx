@@ -16,14 +16,16 @@ export default function Game({gameId, nameSelf, token}) {
             .catch(console.error)
     };
 
+    let interval;
+
     useEffect(() => {
         updateGameState();
-        const interval = setInterval(updateGameState, 400);
+        interval = setInterval(updateGameState, 400);
 
         return () => {
             clearInterval(interval);
         };
-    });
+    }, []);
 
     switch (game.state) {
         case 'WAITING':
