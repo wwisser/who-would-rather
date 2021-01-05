@@ -88,7 +88,7 @@ export default function Waiting({game, nameSelf, token}) {
                         }>Start</Button>
                         : null
                 }
-                < CopyLink gameId={game.id}/>
+                <CopyLink gameId={game.id}/>
             </CardActions>
         </Card>
     );
