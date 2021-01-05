@@ -30,7 +30,7 @@ class Description extends React.Component {
         };
         this.setState = this.setState.bind(this);
 
-        setInterval(() => {
+        this.interval = setInterval(() => {
             fetch(`http://localhost:8080/games`, {
                 headers: {
                     'Accept': 'application/json',
@@ -55,6 +55,10 @@ class Description extends React.Component {
                 })
                 .catch(console.error);
         }, 400);
+    }
+
+    componentWillUnmount() {
+        clearInterval(this.interval);
     }
 
     static getCreatedFormatted(created) {
