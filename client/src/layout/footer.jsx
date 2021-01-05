@@ -6,7 +6,7 @@ import Grid from "@material-ui/core/Grid";
 export default function Footer() {
     return (
         <Grid container direction="row" alignItems="center">
-            <Link color="inherit" href="https://github.com/wwisser">
+            <Link color="inherit" href="https://github.com/wwisser/who-would-rather/">
                 <GitHubIcon style={{marginRight: 8}}/>
             </Link>
             <a href="https://github.com/wwisser" style={{textDecoration: 'none', color: 'black'}}>@wwisser</a>
