@@ -57,7 +57,7 @@ class Description extends React.Component {
         }, 400);
     }
 
-    getCreatedFormatted(created) {
+    static getCreatedFormatted(created) {
         const diffMs = new Date() - new Date(created);
 
         const min = Math.floor(diffMs / 1000 / 60);
@@ -73,7 +73,7 @@ class Description extends React.Component {
                 <Typography variant="h2" component="h1" gutterBottom>
                     Who Would Rather?
                 </Typography>
-                <Paper style={{width: 600, padding: 20}}>
+                <Paper style={{width: '65vh', padding: 20}}>
                     <Alert style={{marginBottom: 10}} severity="info">
                         A game where up to 4 players vote each other or them selves.
                         <br/>Whoever they think a randomly occurring question applies the most.
@@ -115,7 +115,7 @@ class Description extends React.Component {
                                 <TableRow key={game.id}>
                                     <TableCell>{game.id}</TableCell>
                                     <TableCell>{game.owner.name}</TableCell>
-                                    <TableCell>{this.getCreatedFormatted(game.created)} ago</TableCell>
+                                    <TableCell>{Description.getCreatedFormatted(game.created)} ago</TableCell>
                                     <TableCell align="center">{game.players.length + '/4'}</TableCell>
                                     <TableCell align="right" style={{fontSize: '2px'}}>
                                         <Button variant="contained" color="primary" size="small" onClick={() => {

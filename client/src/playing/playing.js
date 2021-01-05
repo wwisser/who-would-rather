@@ -6,7 +6,7 @@ import React from "react";
 import {makeStyles} from "@material-ui/core";
 import HowToVote from '@material-ui/icons/HowToVote'
 
-export default function Playing({game, token}) {
+export default function Playing({game}) {
     const useStyles = makeStyles((theme) => {
         return {
             paper: {
@@ -43,30 +43,7 @@ export default function Playing({game, token}) {
     });
 
     const classes = useStyles();
-
     const [votes, setVotes] = React.useState({});
-
-    const interval = setInterval(() => {
-        fetch(`http://localhost:8080/games/${game.id}/votes`, {
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                'Token': token
-            },
-        })
-            .then(res => {
-                res.text().then(res => {
-                    const votes = JSON.parse(res);
-
-                    if (game.state === 'ENDING') {
-                        clearInterval(interval);
-                    }
-
-                    setVotes(votes);
-                })
-            })
-            .catch(console.error)
-    }, 400);
 
     return (
         <Card className={classes.waiting}>
