@@ -20,6 +20,6 @@ data class Game(
         var owner: Player,
         var state: State,
         @JsonIgnore var questions: List<String>,
-        @JsonIgnore var votes: MutableMap<String, MutableSet<Vote>>, // question <-> votes
+        var votes: MutableMap<String, MutableSet<Vote>>, // question <-> votes
         var currentQuestion: String?
 )

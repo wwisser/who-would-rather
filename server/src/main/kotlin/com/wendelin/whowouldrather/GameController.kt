@@ -106,23 +106,6 @@ class GameController(val storage: GameStorage) {
         game.lastUpdate = System.currentTimeMillis()
     }
 
-    @GetMapping("/games/{gameId}/votes")
-    fun vote(
-            @PathVariable("gameId") gameId: String,
-            @RequestHeader("Token") token: String
-    ): Map<String, Set<Vote>> {
-        val game: Game = this.storage.getGame(gameId)
-        if (game.players.none { it.token == token }) {
-            throw RuntimeException("Failed to resolve token")
-        }
-
-        if (game.state != State.PLAYING || game.currentQuestion == null) {
-            throw RuntimeException("Voting is not active")
-        }
-
-        return game.votes
-    }
-
     data class VoteRequest(val target: String)
 
     @PutMapping("/games/{gameId}/votes")
