@@ -9,20 +9,6 @@ import HowToVote from '@material-ui/icons/HowToVote'
 export default function Playing({game}) {
     const useStyles = makeStyles((theme) => {
         return {
-            paper: {
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                flexWrap: 'wrap',
-                padding: '10px',
-                minWidth: 275
-            },
-            root: {
-                '& > *': {
-                    margin: theme.spacing(1),
-                    width: '25ch',
-                },
-            },
             title: {
                 fontSize: 13,
                 marginBottom: '5px'
@@ -38,15 +24,13 @@ export default function Playing({game}) {
                 width: 35,
                 marginRight: '15px'
             },
-
         };
     });
 
     const classes = useStyles();
-    const [votes, setVotes] = React.useState({});
 
     return (
-        <Card className={classes.waiting}>
+        <Card>
             <CardContent>
                 <Typography className={classes.title} color="textSecondary" gutterBottom>
                     Game <i>{game.id}</i>

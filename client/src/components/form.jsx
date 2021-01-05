@@ -58,41 +58,6 @@ const useStyles = makeStyles((theme) => {
                 width: '25ch',
             },
         },
-        waiting: {
-            minWidth: 275,
-        },
-        bullet: {
-            display: 'inline-block',
-            margin: '0 2px',
-            transform: 'scale(0.8)',
-        },
-        title: {
-            fontSize: 13,
-            marginBottom: '-15px'
-        },
-        pos: {
-            marginBottom: 12,
-        },
-        topic: {
-            display: 'flex',
-            alignItems: 'center'
-        },
-        icon: {
-            height: '10%',
-            width: '10%',
-            marginRight: '15px'
-        },
-        playerName: {
-            fontSize: 13,
-        },
-        playerView: {
-            textAlign: 'center',
-            marginRight: '25px'
-        },
-        players: {
-            display: 'flex',
-            flexWrap: 'nowrap',
-        }
     };
 });
 
