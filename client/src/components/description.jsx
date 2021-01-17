@@ -41,10 +41,8 @@ class Description extends React.Component {
                         const games = JSON.parse(res).filter(game => game.state === 'WAITING');
                         const date = new Date();
 
-
-                        const hours = date.getHours() < 10  ? '0' + date.getHours() : date.getHours();
-                        const minutes = date.getMinutes() < 10  ? '0' + date.getMinutes() : date.getMinutes();
-
+                        const hours = date.getHours() < 10 ? '0' + date.getHours() : date.getHours();
+                        const minutes = date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes();
 
                         this.setState({
                             loaded: true,
@@ -89,21 +87,17 @@ class Description extends React.Component {
                     <Typography style={{marginBottom: 10}} color="textSecondary">
                         Last Update: {this.state.lastUpdate}
                     </Typography>
-                    <Button style={{marginRight: 10}} variant="contained" color="primary" size="small" onClick={() => {
-                        const {history} = this.props;
-                        history.push('/game');
-                    }}>
+                    <Button style={{marginRight: 10}} variant="contained" color="primary" size="small"
+                            onClick={() => this.props.history.push('/game')}>
                         Create a game
                     </Button>
-                    <Button variant="contained" color="primary" size="small" onClick={() => {
-                        const {history} = this.props;
-                        history.push('/game/join');
-                    }}>
+                    <Button variant="contained" color="primary" size="small"
+                            onClick={() => this.props.history.push('/game/join')}>
                         Join a game
                     </Button>
                 </Paper>
 
-                <TableContainer style={{ maxHeight: 300, width: 600 }}>
+                <TableContainer style={{maxHeight: 300, width: 600}}>
                     <Table size="small" style={{marginTop: 60}} stickyHeader>
                         <TableHead>
                             <TableRow>
