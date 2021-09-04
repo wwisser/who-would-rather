@@ -3,24 +3,28 @@ import React from "react";
 import deepOrange from "@material-ui/core/colors/deepOrange";
 import withTheme from "@material-ui/core/styles/withTheme";
 import Badge from "@material-ui/core/Badge";
-import VerifiedUserTwoToneIcon from '@material-ui/icons/VerifiedUserTwoTone';
+import VerifiedUserTwoToneIcon from '@material-ui/icons/Check';
 import withStyles from "@material-ui/core/styles/withStyles";
 
 function PlayerList({theme, game, token}) {
     const isVotingEnabled = () => game.state === 'PLAYING';
-    const hasVoted = (player) => {
+    const didVote = (player) => {
         return game.votes[game.currentQuestion]?.find(vote => vote.from.name === player.name)
     };
 
     const avatars = {};
-    for (let i = 0; i < game.players.length; i++) {
-        avatars[game.players[i].name] = {
-            color: theme.palette.getContrastText(deepOrange[(i + 3) * 100]),
-            backgroundColor: deepOrange[(i + 3) * 100],
-            cursor: isVotingEnabled() && !hasVoted(game.players[i]) ? 'pointer' : null
-        };
 
-    }
+    const updateAvatars = () => {
+        for (let i = 0; i < game.players.length; i++) {
+            avatars[game.players[i].name] = {
+                color: theme.palette.getContrastText(deepOrange[(i + 3) * 100]),
+                backgroundColor: deepOrange[(i + 3) * 100],
+                cursor: isVotingEnabled() && !didVote(game.players[i]) ? 'pointer' : null
+            };
+
+        }
+    };
+    updateAvatars();
 
     const VotedIcon = withStyles(() => ({
         root: {
@@ -43,7 +47,7 @@ function PlayerList({theme, game, token}) {
                 'Token': token,
             },
             body: JSON.stringify({target: target})
-        }).catch(console.error)
+        }).then(updateAvatars).catch(console.error)
     };
 
     return (
@@ -52,7 +56,7 @@ function PlayerList({theme, game, token}) {
                 game.players.map(player =>
                     <div key={player.name} style={{textAlign: 'center', marginRight: '25px'}}>
                         {
-                            isVotingEnabled() && hasVoted(player)
+                            isVotingEnabled() && didVote(player)
                                 ? <div>
                                     <Badge
                                         overlap="circle"

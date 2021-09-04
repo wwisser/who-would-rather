@@ -28,7 +28,7 @@ export default function Game({gameId, nameSelf, token}) {
         case 'WAITING':
             return <Waiting nameSelf={nameSelf} token={token} game={game}/>;
         case 'PLAYING':
-            return <Playing game={game} token={token}/>;
+            return <Playing game={game} token={token} nameSelf={nameSelf}/>;
         case 'ENDING':
             return <p>Thanks for playing</p>;
         default:
