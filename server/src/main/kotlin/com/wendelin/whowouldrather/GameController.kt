@@ -2,10 +2,15 @@ package com.wendelin.whowouldrather
 
 import com.wendelin.whowouldrather.storage.GameStorage
 import com.wendelin.whowouldrather.utils.IdGenerator
-import com.wendelin.whowouldrather.utils.IdGenerator.Companion.generateToken
+import com.wendelin.whowouldrather.utils.IdGenerator.generateToken
+import org.hibernate.validator.constraints.Range
 import org.springframework.stereotype.Component
 import org.springframework.web.bind.annotation.*
 import java.util.concurrent.ConcurrentHashMap
+import javax.validation.Valid
+import javax.validation.constraints.NotEmpty
+import javax.validation.constraints.NotNull
+import javax.validation.constraints.Size
 
 @RestController
 @CrossOrigin("*")
@@ -16,20 +21,24 @@ class GameController(val storage: GameStorage) {
         const val MIN_PLAYERS: Int = 2
         const val MAX_PLAYERS: Int = 4
         val QUESTIONS: List<String> = listOf(
-                "sell their car because of its color",
-                "fail their driving license test multiple times",
-                "live in a zoo",
-                "become a president"
+            "sell their car because of its color",
+            "fail their driving license test multiple times",
+            "live in a zoo",
+            "become a president"
         )
         const val MIN_QUESTIONS: Int = 2
     }
 
-    data class CreateRequest(val name: String, val questionAmount: Int)
+    data class CreateRequest(
+        @field:NotNull @field:NotEmpty @field:Size(min = 4, max = 64) val name: String,
+        @field:Range(min = 2, max = 4) val questionAmount: Int
+    )
+
     data class CreateResponse(val gameId: String, val token: String)
 
     @PostMapping("/games")
-    fun createGame(@RequestBody body: CreateRequest): CreateResponse {
-        if (body.questionAmount < GameController.MIN_QUESTIONS || body.questionAmount > GameController.QUESTIONS.size) {
+    fun createGame(@RequestBody @Valid body: CreateRequest): CreateResponse {
+        if (body.questionAmount < MIN_QUESTIONS || body.questionAmount > QUESTIONS.size) {
             throw RuntimeException("Invalid question amount")
         }
 
@@ -39,35 +48,37 @@ class GameController(val storage: GameStorage) {
             id = IdGenerator.generateGameId()
         }
 
-        val token: String = IdGenerator.generateToken()
+        val token: String = generateToken()
         val player = Player(body.name, token)
-        this.storage.addGame(Game(
+        this.storage.addGame(
+            Game(
                 id,
                 System.currentTimeMillis(),
                 System.currentTimeMillis(),
                 mutableListOf(player),
                 player,
                 State.WAITING,
-                GameController.QUESTIONS.shuffled().subList(0, body.questionAmount),
+                QUESTIONS.shuffled().subList(0, body.questionAmount),
                 ConcurrentHashMap(),
                 null
-        ))
+            )
+        )
 
         return CreateResponse(id, token)
     }
 
-    data class JoinRequest(val name: String)
+    data class JoinRequest(@field:NotNull @field:NotEmpty @field:Size(min = 4, max = 64) val name: String)
     data class JoinResponse(val token: String)
 
     @PutMapping("/games/{gameId}")
-    fun joinGame(@PathVariable("gameId") gameId: String, @RequestBody body: JoinRequest): JoinResponse {
+    fun joinGame(@PathVariable("gameId") gameId: String, @RequestBody @Valid body: JoinRequest): JoinResponse {
         val game: Game = this.storage.getGame(gameId)
 
         if (game.state != State.WAITING) {
             throw RuntimeException("Game already running")
         }
 
-        if (game.players.size >= GameController.MAX_PLAYERS) {
+        if (game.players.size >= MAX_PLAYERS) {
             throw RuntimeException("Lobby already full")
         }
 
@@ -89,7 +100,7 @@ class GameController(val storage: GameStorage) {
     fun startGame(@PathVariable("gameId") gameId: String, @RequestHeader("token") token: String) {
         val game: Game = this.storage.getGame(gameId)
         val player: Player = game.players.find { it.token == token }
-                ?: throw RuntimeException("Failed to resolve token")
+            ?: throw RuntimeException("Failed to resolve token")
 
         if (game.state != State.WAITING) {
             throw RuntimeException("Game already started")
@@ -109,22 +120,22 @@ class GameController(val storage: GameStorage) {
 
     @PutMapping("/games/{gameId}/votes")
     fun vote(
-            @PathVariable("gameId") gameId: String,
-            @RequestHeader("Token") token: String,
-            @RequestBody request: VoteRequest
+        @PathVariable("gameId") gameId: String,
+        @RequestHeader("Token") token: String,
+        @RequestBody request: VoteRequest
     ) {
         val game: Game = this.storage.getGame(gameId)
         val player: Player = game.players.find { it.token == token }
-                ?: throw RuntimeException("Failed to resolve token")
+            ?: throw RuntimeException("Failed to resolve token")
 
         if (game.state != State.PLAYING || game.currentQuestion == null) {
             throw RuntimeException("Voting is not active")
         }
 
         val targetPlayer: Player = game.players.find { it.name == request.target }
-                ?: throw RuntimeException("Failed to resolve target")
+            ?: throw RuntimeException("Failed to resolve target")
         val votes: MutableSet<Vote> = game.votes[game.currentQuestion!!]
-                ?: mutableSetOf()
+            ?: mutableSetOf()
 
         if (votes.any { it.from.token == token }) {
             throw RuntimeException("Already voted")
@@ -158,7 +169,6 @@ class GameController(val storage: GameStorage) {
 
         return game
     }
-
 
     @GetMapping("/games")
     fun getAllGames(): Collection<Game> {

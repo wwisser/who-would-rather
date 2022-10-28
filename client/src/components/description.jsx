@@ -84,7 +84,7 @@ class Description extends React.Component {
                         Players
                         Online: {this.state.rowData.map(game => game.players.length).reduce((pv, cv) => pv + cv, 0)}
                     </Typography>
-                    <Typography style={{marginBottom: 10}} color="textSecondary">
+                    <Typography style={{marginBottom: 4, fontSize: 'small'}} color="textSecondary">
                         Last Update: {this.state.lastUpdate}
                     </Typography>
                     <Button style={{marginRight: 10}} variant="contained" color="primary" size="small"

@@ -13,13 +13,13 @@ enum class State {
 }
 
 data class Game(
-        val id: String,
-        val created: Long,
-        var lastUpdate: Long = System.currentTimeMillis(),
-        var players: MutableList<Player>,
-        var owner: Player,
-        var state: State,
-        @JsonIgnore var questions: List<String>,
-        var votes: MutableMap<String, MutableSet<Vote>>, // question <-> votes
-        var currentQuestion: String?
+    val id: String,
+    val created: Long,
+    var lastUpdate: Long = System.currentTimeMillis(),
+    var players: MutableList<Player>,
+    var owner: Player,
+    var state: State,
+    @JsonIgnore var questions: List<String>,
+    var votes: MutableMap<String, MutableSet<Vote>>, // question <-> votes
+    var currentQuestion: String?
 )
