@@ -1,5 +1,6 @@
 import React from "react";
 import Button from "@material-ui/core/Button";
+import config from "../config.json";
 
 export default function CopyLink(props) {
     const [copied, setCopied] = React.useState(false);
@@ -8,7 +9,7 @@ export default function CopyLink(props) {
                 size="small"
                 onClick={() => {
                     const input = document.createElement('input');
-                    input.setAttribute('value', 'http://localhost:3000/game/join/' + props.gameId);
+                    input.setAttribute('value', `${config.API_HOST}/game/join/${props.gameId}`);
                     document.body.appendChild(input);
                     input.select();
                     document.execCommand('copy');

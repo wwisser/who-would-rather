@@ -8,6 +8,9 @@ import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import Card from "@material-ui/core/Card";
 import Game from "../game/game";
+import config from "../config.json";
+import {Snackbar} from "@mui/material";
+import MuiAlert from '@mui/material/Alert';
 
 function TabPanel(props) {
     const {children, value, index, ...other} = props;
@@ -61,6 +64,10 @@ const useStyles = makeStyles((theme) => {
     };
 });
 
+const Alert = React.forwardRef(function Alert(props, ref) {
+    return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
+
 export default function Form({match}) {
     const classes = useStyles();
     const [formData, setFormData] = React.useState({
@@ -70,6 +77,20 @@ export default function Form({match}) {
         gameId: match.params.gameId ? match.params.gameId : null,
         token: null,
     });
+
+    const [snackbarOpen, setSnackbarOpen] = React.useState(false);
+
+    const handleClick = () => {
+        setSnackbarOpen(true);
+    };
+
+    const handleClose = (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+
+        setSnackbarOpen(false);
+    }
 
     const handleTabValue = (event, newValue) => {
         setFormData({...formData, currentTab: newValue});
@@ -83,7 +104,7 @@ export default function Form({match}) {
     };
 
     const submitCreate = () => {
-        fetch('http://localhost:8080/games', {
+        fetch(`${config.API_HOST}/games`, {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -99,10 +120,11 @@ export default function Form({match}) {
                 })
             })
             .catch(console.error)
+            .then(() => setSnackbarOpen(true));
     };
 
     const submitJoin = () => {
-        fetch(`http://localhost:8080/games/${formData.gameId}`, {
+        fetch(`${config.API_HOST}/games/${formData.gameId}`, {
             method: 'PUT',
             headers: {
                 'Accept': 'application/json',
@@ -158,6 +180,15 @@ export default function Form({match}) {
                             onClick={submitJoin}>Join</Button>
                 </form>
             </TabPanel>
+
+            <Button variant="outlined" onClick={handleClick}>
+                Open success snackbar
+            </Button>
+            <Snackbar open={snackbarOpen} autoHideDuration={1500} onClose={handleClose}>
+                <Alert onClose={handleClose} severity="error" sx={{ width: '100%' }}>
+                    Error requesting API
+                </Alert>
+            </Snackbar>
         </Card>
     );
 }

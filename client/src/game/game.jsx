@@ -1,12 +1,13 @@
 import React, {useEffect} from "react";
 import Waiting from "./waiting";
 import Playing from "./playing";
+import config from "../config.json";
 
 export default function Game({gameId, nameSelf, token}) {
     const [game, setGame] = React.useState({});
 
     const updateGameState = () => {
-        fetch(`http://localhost:8080/games/${gameId}`, {
+        fetch(`${config.API_HOST}/games/${gameId}`, {
             headers: {
                 'Accept': 'application/json',
                 'Token': token

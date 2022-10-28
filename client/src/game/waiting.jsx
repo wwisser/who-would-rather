@@ -8,6 +8,7 @@ import CardActions from "@material-ui/core/CardActions/CardActions";
 import Button from "@material-ui/core/Button";
 import CopyLink from "./copy-link";
 import {makeStyles} from "@material-ui/core";
+import config from "../config.json";
 
 const useStyles = makeStyles((theme) => {
     return {
@@ -77,7 +78,7 @@ export default function Waiting({game, nameSelf, token}) {
                     game.owner.name === nameSelf
                         ? <Button disabled={game.players.length < MIN_PLAYERS} variant="contained"
                                   color="primary" onClick={() => {
-                            fetch(`http://localhost:8080/games/${game.id}/start`, {
+                            fetch(`${config.API_HOST}/games/${game.id}/start`, {
                                 method: 'PUT',
                                 headers: {
                                     'Content-Type': 'application/json',

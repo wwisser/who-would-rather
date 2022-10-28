@@ -11,6 +11,7 @@ import {withRouter} from "react-router-dom";
 import Paper from "@material-ui/core/Paper";
 import Alert from '@material-ui/lab/Alert';
 import TableContainer from "@material-ui/core/TableContainer";
+import config from "../config.json";
 
 class Description extends React.Component {
 
@@ -31,7 +32,7 @@ class Description extends React.Component {
         this.setState = this.setState.bind(this);
 
         this.interval = setInterval(() => {
-            fetch(`http://localhost:8080/games`, {
+            fetch(`${config.API_HOST}/games`, {
                 headers: {
                     'Accept': 'application/json',
                 },

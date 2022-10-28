@@ -5,6 +5,7 @@ import withTheme from "@material-ui/core/styles/withTheme";
 import Badge from "@material-ui/core/Badge";
 import VerifiedUserTwoToneIcon from '@material-ui/icons/Check';
 import withStyles from "@material-ui/core/styles/withStyles";
+import config from "../config.json";
 
 function PlayerList({theme, game, token}) {
     const isVotingEnabled = () => game.state === 'PLAYING';
@@ -40,7 +41,7 @@ function PlayerList({theme, game, token}) {
     };
 
     const submitVote = (target) => {
-        fetch(`http://localhost:8080/games/${game.id}/votes`, {
+        fetch(`${config.API_HOST}/games/${game.id}/votes`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
