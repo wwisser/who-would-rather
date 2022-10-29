@@ -1,17 +1,20 @@
 # Who Would Rather?
+
 A game where up to 4 players vote each other or them selves.
 Whoever they think a randomly occurring question applies the most.
 
-# TODO (MVP)
+## Landing Page
 
-# Release
-- Deployment API
-- Deployment Frontend
+![Landing Page](demo/landing.png)
 
-## API
-- Name validation
+## Game Lobby
 
-## Frontend
-- Name validation
-- Voting
-- End screen
+![Game Lobby](demo/lobby.png)
+
+## Voting
+
+![Voting](demo/voting.png)
+
+## Result
+
+![Result](demo/result.png)
