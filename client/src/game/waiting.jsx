@@ -64,11 +64,13 @@ export default function Waiting({game, nameSelf, token}) {
                 </Typography>
                 <Typography variant="h5" component="h2" className={classes.topic}>
                     <CircularProgress className={classes.icon} size={18}/>
-                    <p>
-                        Waiting for Players ({game.players.length}/{MAX_PLAYERS})
-                    </p>
+                    {
+                        game.players.length < MIN_PLAYERS
+                            ? <p>Waiting for players ({game.players.length}/{MAX_PLAYERS})</p>
+                            : <p>Waiting for owner to start game</p>
+                    }
                 </Typography>
-                <PlayerList game={game} token={token}/>
+                <PlayerList game={game} token={token} nameSelf={nameSelf}/>
                 <Typography variant="body2" component="span">
                     Amount of players required for start: {MIN_PLAYERS}
                 </Typography>

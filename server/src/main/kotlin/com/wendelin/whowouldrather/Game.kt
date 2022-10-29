@@ -21,5 +21,6 @@ data class Game(
     var state: State,
     @JsonIgnore var questions: List<String>,
     var votes: MutableMap<String, MutableSet<Vote>>, // question <-> votes
-    var currentQuestion: String?
+    var currentQuestion: String?,
+    var questionsRemaining: Int
 )

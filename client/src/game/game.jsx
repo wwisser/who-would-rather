@@ -1,12 +1,17 @@
 import React, {useEffect} from "react";
 import Waiting from "./waiting";
 import Playing from "./playing";
+import Ending from "./ending";
 import config from "../config.json";
 
 export default function Game({gameId, nameSelf, token}) {
     const [game, setGame] = React.useState({});
 
     const updateGameState = () => {
+        if (game.state === 'ENDING') {
+            return;
+        }
+
         fetch(`${config.API_HOST}/games/${gameId}`, {
             headers: {
                 'Accept': 'application/json',
@@ -31,7 +36,7 @@ export default function Game({gameId, nameSelf, token}) {
         case 'PLAYING':
             return <Playing game={game} token={token} nameSelf={nameSelf}/>;
         case 'ENDING':
-            return <p>Thanks for playing</p>;
+            return <Ending game={game} nameSelf={nameSelf}/>;
         default:
             return <p>Loading...</p>;
     }

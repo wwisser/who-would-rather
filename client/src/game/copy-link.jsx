@@ -9,7 +9,7 @@ export default function CopyLink(props) {
                 size="small"
                 onClick={() => {
                     const input = document.createElement('input');
-                    input.setAttribute('value', `${config.API_HOST}/game/join/${props.gameId}`);
+                    input.setAttribute('value', `${config.CLIENT_HOST}/game/join/${props.gameId}`);
                     document.body.appendChild(input);
                     input.select();
                     document.execCommand('copy');

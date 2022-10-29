@@ -2,77 +2,71 @@ import Avatar from "@material-ui/core/Avatar";
 import React from "react";
 import deepOrange from "@material-ui/core/colors/deepOrange";
 import withTheme from "@material-ui/core/styles/withTheme";
-import Badge from "@material-ui/core/Badge";
-import VerifiedUserTwoToneIcon from '@material-ui/icons/Check';
-import withStyles from "@material-ui/core/styles/withStyles";
 import config from "../config.json";
 
-function PlayerList({theme, game, token}) {
+function PlayerList({theme, game, token, nameSelf}) {
     const isVotingEnabled = () => game.state === 'PLAYING';
     const didVote = (player) => {
-        return game.votes[game.currentQuestion]?.find(vote => vote.from.name === player.name)
+        return game.votes[game.currentQuestion]?.find(vote => vote.target.name === player.name && vote.from.name === nameSelf);
     };
 
     const avatars = {};
 
     const updateAvatars = () => {
         for (let i = 0; i < game.players.length; i++) {
-            avatars[game.players[i].name] = {
+            const player = game.players[i];
+
+            const style = {
                 color: theme.palette.getContrastText(deepOrange[(i + 3) * 100]),
                 backgroundColor: deepOrange[(i + 3) * 100],
-                cursor: isVotingEnabled() && !didVote(game.players[i]) ? 'pointer' : null
+                cursor: isVotingEnabled() && !didVote(player) ? 'pointer' : null
             };
 
+            if (game.votes[game.currentQuestion]?.find(vote => vote.target.name === player.name && vote.from.name === nameSelf)) {
+                style.border = '2px solid yellowgreen';
+            }
+
+            avatars[player.name] = style;
         }
     };
+
     updateAvatars();
 
-    const VotedIcon = withStyles(() => ({
-        root: {
-            width: 17,
-            height: 17,
-            fill: 'green',
-        },
-    }))(VerifiedUserTwoToneIcon);
-
     const getAvatar = (player) => {
-        return <Avatar onClick={() => submitVote(player.name)}
+        return <Avatar onClick={() => submitVote(player)}
                        style={avatars[player.name]}>{player.name.split('')[0]}</Avatar>
     };
 
     const submitVote = (target) => {
+        if (!isVotingEnabled() || didVote(target)) {
+            return;
+        }
+
         fetch(`${config.API_HOST}/games/${game.id}/votes`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
                 'Token': token,
             },
-            body: JSON.stringify({target: target})
+            body: JSON.stringify({target: target.name})
         }).then(updateAvatars).catch(console.error)
     };
+
+    const getPlayerName = (name) => {
+        return (
+            <p style={{fontSize: "smaller"}}>{name} {nameSelf === name ? '(you)' : ''}</p>
+        )
+    }
 
     return (
         <div style={{display: 'flex', flexWrap: 'nowrap',}}>
             {
                 game.players.map(player =>
                     <div key={player.name} style={{textAlign: 'center', marginRight: '25px'}}>
-                        {
-                            isVotingEnabled() && didVote(player)
-                                ? <div>
-                                    <Badge
-                                        overlap="circle"
-                                        anchorOrigin={{vertical: 'bottom', horizontal: 'left'}}
-                                        badgeContent={<VotedIcon/>}
-                                    >
-                                        {getAvatar(player)}
-                                    </Badge>
-                                    <p>{player.name}</p>
-                                </div>
-                                : <div>
-                                    {getAvatar(player)}
-                                    <p>{player.name}</p>
-                                </div>
-                        }
+                        <div>
+                            {getAvatar(player)}
+                            {getPlayerName(player.name)}
+                        </div>
                     </div>
                 )
             }

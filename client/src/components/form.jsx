@@ -80,10 +80,6 @@ export default function Form({match}) {
 
     const [snackbarOpen, setSnackbarOpen] = React.useState(false);
 
-    const handleClick = () => {
-        setSnackbarOpen(true);
-    };
-
     const handleClose = (event, reason) => {
         if (reason === 'clickaway') {
             return;
@@ -181,11 +177,8 @@ export default function Form({match}) {
                 </form>
             </TabPanel>
 
-            <Button variant="outlined" onClick={handleClick}>
-                Open success snackbar
-            </Button>
             <Snackbar open={snackbarOpen} autoHideDuration={1500} onClose={handleClose}>
-                <Alert onClose={handleClose} severity="error" sx={{ width: '100%' }}>
+                <Alert onClose={handleClose} sx={{ width: '100%', backgroundColor: 'red', 'color': 'white' }}>
                     Error requesting API
                 </Alert>
             </Snackbar>

@@ -30,7 +30,7 @@ class GameController(val storage: GameStorage) {
     }
 
     data class CreateRequest(
-        @field:NotNull @field:NotEmpty @field:Size(min = 4, max = 64) val name: String,
+        @field:NotNull @field:NotEmpty @field:Size(min = 4, max = 16) val name: String,
         @field:Range(min = 2, max = 4) val questionAmount: Int
     )
 
@@ -50,6 +50,8 @@ class GameController(val storage: GameStorage) {
 
         val token: String = generateToken()
         val player = Player(body.name, token)
+
+        val questions = QUESTIONS.shuffled().subList(0, body.questionAmount)
         this.storage.addGame(
             Game(
                 id,
@@ -58,16 +60,17 @@ class GameController(val storage: GameStorage) {
                 mutableListOf(player),
                 player,
                 State.WAITING,
-                QUESTIONS.shuffled().subList(0, body.questionAmount),
+                questions,
                 ConcurrentHashMap(),
-                null
+                null,
+                questions.size
             )
         )
 
         return CreateResponse(id, token)
     }
 
-    data class JoinRequest(@field:NotNull @field:NotEmpty @field:Size(min = 4, max = 64) val name: String)
+    data class JoinRequest(@field:NotNull @field:NotEmpty @field:Size(min = 3, max = 64) val name: String)
     data class JoinResponse(val token: String)
 
     @PutMapping("/games/{gameId}")
@@ -142,6 +145,10 @@ class GameController(val storage: GameStorage) {
         }
 
         votes.add(Vote(player, targetPlayer, System.currentTimeMillis()))
+
+        if (game.questionsRemaining > 0) {
+            game.questionsRemaining -= 1;
+        }
 
         if (game.votes[game.currentQuestion!!] == null) {
             game.votes[game.currentQuestion!!] = votes

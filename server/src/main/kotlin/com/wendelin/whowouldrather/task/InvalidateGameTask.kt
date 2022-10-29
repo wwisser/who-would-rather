@@ -15,7 +15,7 @@ class InvalidateGameTask {
     private lateinit var gameStorage: GameStorage
 
     companion object {
-        var MAX_IDLE_TIME: Long = TimeUnit.MINUTES.toMillis(4)
+        var MAX_IDLE_TIME: Long = TimeUnit.MINUTES.toMillis(15)
     }
 
     @Scheduled(fixedRate = 10000)

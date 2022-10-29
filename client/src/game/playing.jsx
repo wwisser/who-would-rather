@@ -33,15 +33,15 @@ export default function Playing({game, token, nameSelf}) {
         <Card>
             <CardContent>
                 <Typography className={classes.title} color="textSecondary" gutterBottom>
-                    Game <i>{game.id}</i>
+                    Game <i>{game.id}</i> | {game.questionsRemaining} more question(s) remaining
                 </Typography>
                 <Typography variant="h5" component="h2" className={classes.topic}>
                     <HowToVote className={classes.icon}/>
-                    <p>
+                    <p style={{opacity: 0.01, transition: 'opacity 100ms ease-in'}}>
                         Who would rather <b>{game.currentQuestion}</b>?
                     </p>
                 </Typography>
-                <PlayerList game={game} token={token} self={nameSelf}/>
+                <PlayerList game={game} token={token} nameSelf={nameSelf}/>
                 <Typography variant="body2" component="span">
                     Click an avatar to vote for a player. You can also vote for yourself.
                 </Typography>
