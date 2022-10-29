@@ -6,9 +6,6 @@ import config from "../config.json";
 
 function PlayerList({theme, game, token, nameSelf}) {
     const isVotingEnabled = () => game.state === 'PLAYING';
-    const didVoteForPlayer = (player) => {
-        return game.votes[game.currentQuestion]?.some(vote => vote.target.name === player.name && vote.from.name === nameSelf);
-    };
 
     const didVote = () => {
         return game.votes[game.currentQuestion]?.some(vote => vote.from.name === nameSelf);
