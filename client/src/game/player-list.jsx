@@ -6,8 +6,12 @@ import config from "../config.json";
 
 function PlayerList({theme, game, token, nameSelf}) {
     const isVotingEnabled = () => game.state === 'PLAYING';
-    const didVote = (player) => {
-        return game.votes[game.currentQuestion]?.find(vote => vote.target.name === player.name && vote.from.name === nameSelf);
+    const didVoteForPlayer = (player) => {
+        return game.votes[game.currentQuestion]?.some(vote => vote.target.name === player.name && vote.from.name === nameSelf);
+    };
+
+    const didVote = () => {
+        return game.votes[game.currentQuestion]?.some(vote => vote.from.name === nameSelf);
     };
 
     const avatars = {};
@@ -19,7 +23,7 @@ function PlayerList({theme, game, token, nameSelf}) {
             const style = {
                 color: theme.palette.getContrastText(deepOrange[(i + 3) * 100]),
                 backgroundColor: deepOrange[(i + 3) * 100],
-                cursor: isVotingEnabled() && !didVote(player) ? 'pointer' : null
+                cursor: isVotingEnabled() && !didVote() ? 'pointer' : null
             };
 
             if (game.votes[game.currentQuestion]?.find(vote => vote.target.name === player.name && vote.from.name === nameSelf)) {
@@ -38,7 +42,7 @@ function PlayerList({theme, game, token, nameSelf}) {
     };
 
     const submitVote = (target) => {
-        if (!isVotingEnabled() || didVote(target)) {
+        if (!isVotingEnabled() || didVote()) {
             return;
         }
 

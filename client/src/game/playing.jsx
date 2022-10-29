@@ -37,7 +37,7 @@ export default function Playing({game, token, nameSelf}) {
                 </Typography>
                 <Typography variant="h5" component="h2" className={classes.topic}>
                     <HowToVote className={classes.icon}/>
-                    <p style={{opacity: 0.01, transition: 'opacity 100ms ease-in'}}>
+                    <p>
                         Who would rather <b>{game.currentQuestion}</b>?
                     </p>
                 </Typography>
